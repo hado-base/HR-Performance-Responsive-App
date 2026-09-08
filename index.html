@@ -1,0 +1,1608 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOTTE Mall West Lake – HR Performance System</title>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --blue:#1A237E;--blue2:#283593;--blue-bg:#E8EAF6;
+  --red:#C62828;--red-bg:#FFEBEE;
+  --green:#1B5E20;--green-bg:#E8F5E9;
+  --purple:#4A148C;--purple-bg:#F3E5F5;
+  --orange:#E65100;--orange-bg:#FFF3E0;
+  --teal:#006064;--teal-bg:#E0F7FA;
+  --text:#1A2332;--muted:#5F6B7A;--border:#E2E8F0;--bg:#EEF2F7;
+  --sidebar-bg:#0F172A;--sidebar-w:234px;
+  --hdr-h:54px;--r:10px;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.05);
+}
+html,body{height:100%;overflow:hidden;font-family:'Be Vietnam Pro',system-ui,sans-serif;color:var(--text)}
+.app-root{display:flex;flex-direction:column;height:100vh}
+
+/* ── HEADER ── */
+.app-hdr{height:var(--hdr-h);background:linear-gradient(135deg,#0D1B3E 0%,#1A237E 60%,#283593 100%);
+  display:flex;align-items:center;justify-content:space-between;padding:0 18px;
+  flex-shrink:0;box-shadow:0 2px 10px rgba(0,0,0,.3);z-index:100}
+/* LOTTE brand */
+.lm-brand{display:flex;align-items:center;gap:10px}
+.lm-logo-img{height:36px;width:auto;object-fit:contain;display:block;filter:drop-shadow(0 1px 3px rgba(0,0,0,.25))}
+.lm-logo-fallback{width:38px;height:38px;border-radius:9px;background:#E31E24;border:2px solid rgba(255,255,255,.2);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 6px rgba(227,30,36,.4)}
+.lm-brand-text{}
+.lm-brand-name{font-size:14px;font-weight:800;color:#fff;letter-spacing:.5px;line-height:1}
+.lm-brand-sub{font-size:9.5px;color:rgba(255,255,255,.5);font-weight:400;margin-top:1px}
+.hdr-divider{width:1px;height:28px;background:rgba(255,255,255,.15);margin:0 14px}
+.hdr-system{font-size:12px;font-weight:600;color:rgba(255,255,255,.55)}
+/* Mode tabs */
+.hdr-mode{display:flex;gap:3px;background:rgba(0,0,0,.22);border-radius:9px;padding:3px}
+.hdr-btn{padding:7px 18px;border-radius:7px;border:none;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;color:rgba(255,255,255,.75);background:transparent;white-space:nowrap}
+.hdr-btn.active{background:#fff;color:var(--blue);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.hdr-btn:hover:not(.active){background:rgba(255,255,255,.1);color:#fff}
+.hdr-btn.kpi-btn.active{background:#fff;color:#C62828}
+.hdr-btn.fb-btn.active{background:#fff;color:#4A148C}
+.hdr-btn.rpt-btn.active{background:#fff;color:#1B5E20}
+.hdr-emp{font-size:11px;color:rgba(255,255,255,.55);text-align:right;line-height:1.6;min-width:130px}
+.hdr-emp b{color:rgba(255,255,255,.9);font-size:12px}
+
+/* ── HAMBURGER (mobile menu toggle) ── */
+.hamburger-btn{display:none;flex-direction:column;justify-content:center;gap:4px;
+  width:34px;height:34px;border:none;background:rgba(255,255,255,.1);border-radius:8px;
+  cursor:pointer;flex-shrink:0;margin-right:10px;padding:0}
+.hamburger-btn span{display:block;width:16px;height:2px;background:#fff;margin:0 auto;border-radius:2px;transition:transform .2s,opacity .2s}
+.hamburger-btn:hover{background:rgba(255,255,255,.18)}
+
+/* ── SIDEBAR OVERLAY (mobile) ── */
+.sidebar-overlay{display:none;position:fixed;top:var(--hdr-h);left:0;right:0;bottom:0;
+  background:rgba(15,23,42,.55);z-index:150;opacity:0;transition:opacity .2s}
+
+/* ── BODY ── */
+.app-body{flex:1;display:flex;overflow:hidden}
+.panel-full{flex:1;display:flex;overflow:hidden}
+
+/* ── SIDEBAR ── */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);display:flex;flex-direction:column;
+  flex-shrink:0;overflow:hidden;border-right:1px solid rgba(255,255,255,.04)}
+.sidebar-kpi{padding:14px 14px 10px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sk-title{font-size:9px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.sk-row{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.sk-item{background:rgba(255,255,255,.05);border-radius:7px;padding:8px 10px;border:1px solid rgba(255,255,255,.06)}
+.sk-item.wide{grid-column:1/-1}
+.sk-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
+.sk-val{font-size:17px;font-weight:800;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.sk-unit{font-size:9px;color:rgba(255,255,255,.3);margin-top:2px}
+.sk-badge{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-top:4px}
+.sk-badge.s{background:rgba(106,27,154,.4);color:#CE93D8}
+.sk-badge.a{background:rgba(27,94,32,.4);color:#81C784}
+.sk-badge.b{background:rgba(13,71,161,.4);color:#90CAF9}
+.sk-badge.c{background:rgba(198,40,40,.4);color:#EF9A9A}
+/* Section divider in sidebar */
+.sidebar-section-hdr{font-size:9px;font-weight:700;color:rgba(255,255,255,.22);text-transform:uppercase;letter-spacing:.8px;padding:12px 14px 5px;border-top:1px solid rgba(255,255,255,.05);margin-top:4px}
+.sidebar-section-hdr:first-child{border-top:none;margin-top:0}
+.sidebar-nav{flex:1;overflow-y:auto;padding:4px 8px 4px}
+.sidebar-nav::-webkit-scrollbar{width:3px}
+.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:7px;cursor:pointer;
+  transition:all .15s;color:rgba(255,255,255,.5);font-size:12px;font-weight:500;margin-bottom:2px;
+  user-select:none;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.nav-item.active{color:#fff;font-weight:600;box-shadow:inset 0 0 0 1px rgba(255,255,255,.1)}
+.nav-item.active.kpi-nav{background:rgba(198,40,40,.3)}
+.nav-item.active.fb-nav{background:rgba(106,27,154,.3)}
+.nav-item.active.rpt-nav{background:rgba(27,94,32,.3)}
+.ni-icon{width:27px;height:27px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;background:rgba(255,255,255,.06)}
+.nav-item.active .ni-icon{background:rgba(255,255,255,.14)}
+.ni-text{line-height:1.3}
+.ni-sub{font-size:9.5px;color:rgba(255,255,255,.3);font-weight:400;display:block;margin-top:1px}
+.nav-item.active .ni-sub{color:rgba(255,255,255,.5)}
+.sidebar-footer{padding:10px 8px;border-top:1px solid rgba(255,255,255,.06);flex-shrink:0}
+.btn-rpt{width:100%;padding:9px 12px;border-radius:8px;border:none;font-size:12.5px;font-weight:700;
+  cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-rpt.kpi-rpt{background:linear-gradient(135deg,#C62828,#B71C1C);color:#fff;box-shadow:0 2px 8px rgba(198,40,40,.35)}
+.btn-rpt.kpi-rpt:hover{background:linear-gradient(135deg,#D32F2F,#C62828);transform:translateY(-1px)}
+.btn-rpt.fb-rpt{background:linear-gradient(135deg,#6A1B9A,#4A148C);color:#fff;box-shadow:0 2px 8px rgba(106,27,154,.35)}
+.btn-rpt.fb-rpt:hover{background:linear-gradient(135deg,#7B1FA2,#6A1B9A);transform:translateY(-1px)}
+
+/* ── MAIN AREA ── */
+.main-area{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.main-topbar{height:44px;background:#fff;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 22px;gap:12px;flex-shrink:0}
+.main-topbar .badge-mode{padding:3px 10px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.badge-mode.kpi{background:var(--red-bg);color:var(--red)}
+.badge-mode.fb360{background:var(--purple-bg);color:var(--purple)}
+.main-section-name{font-size:13.5px;font-weight:700;color:var(--text)}
+.main-section-desc{font-size:11.5px;color:var(--muted)}
+.main-content{flex:1;overflow-y:auto;padding:20px 22px}
+.main-content::-webkit-scrollbar{width:6px}
+.main-content::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:3px}
+
+/* ── CARDS ── */
+.card{background:#fff;border-radius:var(--r);border:1px solid var(--border);margin-bottom:16px;box-shadow:var(--sh);overflow:hidden}
+.card-title{padding:11px 16px;border-bottom:1px solid var(--border);font-size:13px;font-weight:700;display:flex;align-items:center;gap:8px;background:#FAFBFC}
+.card-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ci-red{background:var(--red-bg);color:var(--red)}
+.ci-green{background:var(--green-bg);color:var(--green)}
+.ci-blue{background:var(--blue-bg);color:var(--blue)}
+.ci-purple{background:var(--purple-bg);color:var(--purple)}
+.ci-teal{background:var(--teal-bg);color:var(--teal)}
+.card-body{padding:14px 16px}
+
+/* ── FORM FIELDS ── */
+.form-row{display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.field{flex:1;min-width:120px}
+.field.wide{min-width:100%;flex:none}
+.field label{display:block;font-size:10px;font-weight:600;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field select,.field textarea{width:100%;padding:8px 12px;border:1.5px solid #E2E8F0;border-radius:7px;
+  font-family:inherit;font-size:13.5px;color:var(--text);background:#fff;outline:none;transition:border-color .15s,box-shadow .15s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(40,53,147,.1)}
+.field select{cursor:pointer}
+.field textarea{resize:vertical;min-height:72px;font-size:13px;line-height:1.55}
+
+/* ── ROLE BADGE STRIP ── */
+.role-strip{display:flex;gap:8px;margin-bottom:14px}
+.role-chip{flex:1;padding:8px 6px;border-radius:8px;text-align:center;border:2px solid transparent;cursor:pointer;transition:all .15s}
+.role-chip.active{border-color:currentColor}
+.role-chip.staff{background:#FFF3E0;color:#BF360C}
+.role-chip.manager{background:#E8EAF6;color:#1A237E}
+.role-chip.leader{background:#E8F5E9;color:#1B5E20}
+.role-chip-title{font-size:12px;font-weight:700}
+.role-chip-sub{font-size:9.5px;font-weight:500;opacity:.7;display:block;margin-top:2px}
+
+/* ── KPI TABLE ── */
+.kpi-tbl-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:9px;margin-bottom:10px}
+.kpi-tbl{width:100%;border-collapse:collapse;font-size:11.5px;min-width:820px}
+.kpi-tbl thead th{padding:7px 8px;font-size:10.5px;font-weight:700;text-align:center;white-space:nowrap}
+.kpi-tbl th.base{background:#1E3A8A;color:#fff}
+.kpi-tbl th.h1h{background:#6A1B9A;color:#fff}
+.kpi-tbl th.h2h{background:#01579B;color:#fff}
+.kpi-tbl th.yh{background:#1B5E20;color:#fff}
+.kpi-tbl tbody td{padding:2px 4px;border-bottom:1px solid #F1F5F9;vertical-align:middle}
+.kpi-tbl td.goal-cell{padding:7px 10px;background:#F8FAFC;min-width:170px;vertical-align:top}
+.kpi-tbl td.goal-name{font-size:12px;font-weight:700;color:var(--text);display:block}
+.kpi-tbl td.goal-std{font-size:10px;color:var(--muted);display:block;margin-top:2px;line-height:1.4}
+.rank-mini{display:flex;gap:3px;margin-top:5px;flex-wrap:wrap}
+.rank-mini span{padding:1px 5px;border-radius:3px;font-size:9px;font-weight:700}
+.rm-s{background:#F3E5F5;color:#6A1B9A}
+.rm-a{background:#E8F5E9;color:#1B5E20}
+.rm-b{background:#E3F2FD;color:#01579B}
+.rm-c{background:#FFF3E0;color:#E65100}
+.kpi-tbl td.wt-cell{padding:6px 4px;text-align:center;font-size:12px;font-weight:700;color:var(--blue);background:#EEF2FF;width:46px}
+.kpi-tbl td.calc-cell{padding:6px 4px;text-align:center;font-size:12px;font-weight:700;background:#E8F5E9;color:var(--green)}
+.kpi-tbl td.final-cell{padding:6px 4px;text-align:center;font-size:13px;font-weight:800;background:#E8F5E9;color:#1B5E20;width:58px}
+.kpi-tbl td.rk-cell{padding:6px 4px;text-align:center;font-size:12px;font-weight:800;width:44px}
+.rk-S{background:#F3E5F5;color:#6A1B9A}
+.rk-A{background:#E8F5E9;color:#1B5E20}
+.rk-B{background:#E3F2FD;color:#01579B}
+.rk-C{background:#FFF3E0;color:#E65100}
+.kpi-tbl td.actual-cell{padding:2px 3px;width:90px}
+.kpi-tbl td.eval-cell{padding:2px 3px;width:64px}
+.kpi-tbl input.actual-inp{width:100%;padding:4px 6px;border:1.5px solid #E2E8F0;border-radius:5px;font-size:11px;font-family:inherit;background:#fff;outline:none;text-align:center}
+.kpi-tbl input.actual-inp:focus{border-color:var(--blue2)}
+.rank-sel{width:56px;padding:3px 2px;border:1.5px solid #CBD5E1;border-radius:4px;font-size:11px;font-family:inherit;background:#fff;outline:none;cursor:pointer;text-align:center}
+.rank-sel:focus{border-color:var(--blue2)}
+.kpi-tbl tr.total-tr td{padding:7px 10px;background:#E8EAF6;font-weight:800;color:var(--blue);font-size:12px;text-align:center}
+.kpi-tbl tr.total-tr td.total-label{text-align:left}
+.kpi-tbl tr:not(.total-tr):hover td{background:#F8F9FF}
+.kpi-tbl tr:not(.total-tr):hover td.goal-cell{background:#EEF2FF}
+
+/* ── 360° FRAMEWORK DISPLAY ── */
+.fb-flow{display:flex;align-items:stretch;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.fb-flow-block{flex:1;min-width:160px;border-radius:9px;border:1px solid var(--border);padding:12px 14px;background:#fff}
+.fb-flow-role{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
+.fb-flow-arrow{font-size:12px;color:var(--muted);margin-bottom:6px}
+.fb-rater-list{display:flex;flex-direction:column;gap:4px}
+.fb-rater-chip{padding:4px 9px;border-radius:5px;font-size:11px;font-weight:600;background:#F1F5F9;color:var(--muted)}
+.fb-rater-chip.self{background:#EEF2FF;color:var(--blue)}
+.fb-rater-chip.peer{background:#E8F5E9;color:var(--green)}
+.fb-rater-chip.mgr{background:#FFF3E0;color:var(--orange)}
+
+.dim-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:14px}
+.dim-card{border-radius:8px;border:1px solid var(--border);padding:12px 14px;background:#fff}
+.dim-card-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.dim-card-num{width:20px;height:20px;border-radius:50%;background:var(--blue-bg);color:var(--blue);font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dim-card-desc{font-size:11px;color:var(--muted);line-height:1.5}
+
+/* 360° INPUT GRID */
+.fb-input-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
+.fb-input-card{background:#F8FAFC;border-radius:8px;border:1px solid var(--border);padding:12px}
+.fb-input-card.self-card{background:#EEF2FF;border-color:#C5CAE9}
+.fb-input-card.avg-card{background:#F3E5F5;border-color:#CE93D8}
+.fb-input-card.team-card{background:#E8EAF6;border-color:#9FA8DA}
+.fb-card-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid rgba(0,0,0,.07)}
+.fb-card-lbl.self{color:var(--blue)}
+.fb-card-lbl.peer{color:var(--green)}
+.fb-card-lbl.mgr{color:var(--orange)}
+.fb-card-lbl.avg{color:var(--purple)}
+.fb-card-lbl.team{color:var(--blue)}
+.fb-dim-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;gap:8px}
+.fb-dim-row .dim-lbl{font-size:11.5px;color:var(--text);flex:1;line-height:1.3}
+.fb-score-inp{width:48px;padding:4px 6px;border:1.5px solid #E2E8F0;border-radius:5px;font-family:inherit;font-size:13px;text-align:center;outline:none;color:var(--text)}
+.fb-score-inp:focus{border-color:var(--purple);box-shadow:0 0 0 2px rgba(106,27,154,.1)}
+.fb-score-inp:disabled{background:#F1F5F9;color:var(--muted);cursor:not-allowed;border-color:transparent}
+.fb-avg-disp{width:48px;text-align:center;font-size:13px;font-weight:700;color:var(--purple);padding:4px 6px;background:#F3E5F5;border-radius:5px}
+.fb-score-bar-wrap{margin-top:8px;padding:8px 0 2px;border-top:1px solid rgba(0,0,0,.07)}
+.fb-score-bar-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.fb-score-bar-row .brl{font-size:9.5px;color:var(--muted);width:80px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fb-score-bar-bg{flex:1;height:5px;background:#E8EAF6;border-radius:3px;overflow:hidden}
+.fb-score-bar-fill{height:100%;border-radius:3px;background:var(--blue);transition:width .3s}
+
+/* ── REPORT ── */
+.rpt-sidebar-lbl{font-size:9px;font-weight:700;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:.8px;padding:12px 14px 6px}
+.rpt-nav-btn{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;
+  color:rgba(255,255,255,.45);font-size:12px;cursor:pointer;margin-bottom:2px;
+  transition:all .15s;font-weight:500;font-family:inherit;background:none;border:none;width:100%;text-align:left}
+.rpt-nav-btn:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85)}
+.sidebar-actions{padding:10px 8px;border-top:1px solid rgba(255,255,255,.06);display:flex;flex-direction:column;gap:6px}
+.btn-action{width:100%;padding:8px 12px;border-radius:7px;border:none;font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;display:flex;align-items:center;gap:6px;justify-content:center}
+.btn-print{background:rgba(255,255,255,.1);color:rgba(255,255,255,.82)}
+.btn-print:hover{background:rgba(255,255,255,.16);color:#fff}
+.btn-back{background:transparent;color:rgba(255,255,255,.35);font-size:11.5px}
+.btn-back:hover{color:rgba(255,255,255,.7)}
+/* Report sub-tabs */
+.rpt-tab{padding:7px 18px;border-radius:7px;border:1.5px solid var(--border);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:inherit;transition:all .15s;color:#64748B;background:#fff}
+.rpt-tab.active{background:#1A237E;color:#fff;border-color:#1A237E}
+.rpt-tab:hover:not(.active){background:#F1F5F9;border-color:#CBD5E1}
+.rpt-wrap{max-width:1100px;margin:0 auto;padding:24px 24px 48px}
+.rpt{background:#fff;border-radius:var(--r);border:1px solid var(--border);padding:28px 32px;font-size:12.5px;box-shadow:0 4px 12px rgba(0,0,0,.07)}
+.rpt-hdr{text-align:center;margin-bottom:20px;padding-bottom:18px;border-bottom:2.5px solid var(--red)}
+.rpt-company{font-size:11px;color:var(--muted);margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px}
+.rpt-lotte-dot{width:16px;height:16px;background:#E31E24;border-radius:4px;display:inline-flex;align-items:center;justify-content:center}
+.rpt h2{font-size:15px;font-weight:800;color:#C62828;margin:4px 0;text-transform:uppercase;letter-spacing:.5px}
+.rpt h3{font-size:13px;font-weight:600;color:var(--text)}
+.rpt-date-line{font-size:12px;color:var(--muted);margin-top:5px}
+.rpt .sec{font-weight:700;font-size:13px;margin:20px 0 10px;padding:6px 12px;border-radius:6px;border-left:4px solid}
+.rpt .sec.kpi-sec{color:var(--red);background:var(--red-bg);border-color:var(--red)}
+.rpt .sec.fb-sec{color:var(--purple);background:var(--purple-bg);border-color:var(--purple)}
+.rpt table{width:100%;border-collapse:collapse;margin-bottom:10px;font-size:12px}
+.rpt th{border:1px solid #90A4AE;padding:7px 10px;font-size:11.5px;font-weight:700;text-align:center}
+.rpt th.left{text-align:left}
+.rpt th.main-h{background:#1E3A8A;color:#fff}
+.rpt th.h1h{background:#EDE7F6;color:#4A148C}
+.rpt th.h2h{background:#E1F5FE;color:#01579B}
+.rpt th.yh{background:#E8F5E9;color:#1B5E20}
+.rpt td{border:1px solid #CFD8DC;padding:6px 10px}
+.rpt td.c{text-align:center}
+.rpt td.r{text-align:right;font-variant-numeric:tabular-nums}
+.rpt td.b{font-weight:700}
+.rpt td.hl{font-weight:700;color:var(--blue)}
+.rpt td.bg{background:#F8FAFC}
+.rpt td.total{background:#E8EAF6;font-weight:800;color:var(--blue);text-align:center}
+.rpt td.rk-S{background:#F3E5F5;color:#6A1B9A;font-weight:800;text-align:center}
+.rpt td.rk-A{background:#E8F5E9;color:#1B5E20;font-weight:800;text-align:center}
+.rpt td.rk-B{background:#E3F2FD;color:#01579B;font-weight:800;text-align:center}
+.rpt td.rk-C{background:#FFF3E0;color:#E65100;font-weight:800;text-align:center}
+/* KPI summary cards */
+.rpt-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.rpt-kcard{border-radius:9px;padding:14px 16px;border:1px solid var(--border);position:relative;overflow:hidden}
+.rpt-kcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;border-radius:9px 9px 0 0}
+.kc-red::before{background:linear-gradient(90deg,#C62828,#E53935)}
+.kc-purple::before{background:linear-gradient(90deg,#6A1B9A,#8E24AA)}
+.kc-green::before{background:linear-gradient(90deg,#1B5E20,#388E3C)}
+.kc-blue::before{background:linear-gradient(90deg,#1565C0,#1E88E5)}
+.rkc-lbl{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.rkc-val{font-size:22px;font-weight:800;letter-spacing:-1px;line-height:1}
+.rkc-val.red{color:#C62828}.rkc-val.purple{color:#6A1B9A}.rkc-val.green{color:#1B5E20}.rkc-val.blue{color:#1565C0}
+.rkc-unit{font-size:11px;color:#94A3B8;font-weight:500;margin-top:3px}
+.rkc-sub{font-size:10.5px;color:var(--muted);margin-top:5px}
+.rkc-prog-wrap{margin-top:10px;height:5px;background:#F1F5F9;border-radius:3px;overflow:hidden}
+.rkc-prog-bar{height:100%;border-radius:3px;transition:width .4s}
+.rkc-pct{font-size:10.5px;font-weight:600;margin-top:5px}
+/* Perf block in report */
+.rpt-perf-block{display:grid;grid-template-columns:1fr 220px;gap:20px;margin-bottom:20px;align-items:stretch}
+.rpt-radar-wrap{border:1px solid var(--border);border-radius:9px;padding:14px 16px}
+.rpt-radar-title{font-size:12px;font-weight:700;color:var(--purple);margin-bottom:10px;text-align:center;text-transform:uppercase;letter-spacing:.5px}
+.rpt-radar-body{height:230px;position:relative}
+.rpt-overall-wrap{border:1px solid var(--border);border-radius:9px;padding:20px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.rpt-overall-lbl{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.rpt-overall-score{font-size:40px;font-weight:800;color:var(--purple);letter-spacing:-2px;line-height:1}
+.rpt-overall-denom{font-size:20px;color:#94A3B8;font-weight:600}
+.rpt-score-bar{margin:12px 0 6px;width:100%;height:8px;background:#F1F5F9;border-radius:4px;overflow:hidden}
+.rpt-score-bar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4A148C,#7B1FA2)}
+.rpt-ranking-badge{display:inline-block;padding:5px 18px;border-radius:20px;font-size:15px;font-weight:800;margin-top:6px}
+.rpt-ranking-badge.S{background:#F3E5F5;color:#6A1B9A;border:2px solid #CE93D8}
+.rpt-ranking-badge.A{background:#E8F5E9;color:#1B5E20;border:2px solid #A5D6A7}
+.rpt-ranking-badge.B{background:#E3F2FD;color:#01579B;border:2px solid #90CAF9}
+.rpt-ranking-badge.C{background:#FFF3E0;color:#E65100;border:2px solid #FFCC80}
+/* Employee info row */
+.emp-info-row{display:flex;flex-wrap:wrap;margin-bottom:20px;border:1.5px solid #C62828;border-radius:8px;overflow:hidden}
+.emp-info-item{flex:1;min-width:110px;padding:8px 14px;text-align:center;border-right:1px solid #FFCDD2}
+.emp-info-item:last-child{border-right:none}
+.ei-lbl{font-size:9.5px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:3px}
+.ei-val{font-size:13px;font-weight:700;color:var(--text)}
+/* Strength block */
+.strength-block{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.strength-card{border-radius:8px;border:1px solid var(--border);padding:14px 16px}
+.strength-hdr{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.4px;margin-bottom:10px;padding:6px 12px;border-radius:6px}
+.sh-green{background:var(--green-bg);color:var(--green)}
+.sh-orange{background:var(--orange-bg);color:var(--orange)}
+.strength-item{font-size:12px;color:var(--text);margin-bottom:6px;padding-left:14px;position:relative;line-height:1.55}
+.strength-item::before{content:'•';position:absolute;left:0;color:#94A3B8}
+/* Sign */
+.rpt .sign{display:flex;justify-content:flex-end;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.rpt .sign-box{text-align:center;min-width:160px}
+.rpt .sign-role{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px;margin-bottom:4px}
+.rpt .sign-space{height:44px;border-bottom:1px solid #CBD5E1;margin-bottom:8px}
+.rpt .sign-name{font-weight:700;font-size:14px}
+.rpt .sign-date{font-size:12px;color:var(--muted);margin-top:3px}
+.hidden{display:none!important}
+@media(max-width:800px){.rpt .strength-block,.rpt-kpis,.rpt-perf-block{grid-template-columns:1fr}}
+@media print{
+  .sidebar,.app-hdr,.rpt-wrap>*:not(.rpt){display:none!important}
+  .app-root,.app-body,.main-area{height:auto;overflow:visible}
+  .main-content{overflow:visible;padding:0}
+  .rpt{box-shadow:none;border:none}
+  @page{margin:1.5cm}
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤900px): sidebar becomes off-canvas drawer
+   ══════════════════════════════════════════════════════════ */
+@media (max-width:900px){
+  .hamburger-btn{display:flex}
+  .hdr-divider,.hdr-system{display:none}
+  .lm-brand-sub{display:none}
+  .app-hdr{padding:0 12px}
+
+  .sidebar{
+    position:fixed;top:var(--hdr-h);left:0;bottom:0;
+    width:min(78vw,260px);
+    transform:translateX(-100%);
+    transition:transform .25s ease;
+    z-index:200;
+    box-shadow:4px 0 18px rgba(0,0,0,.3);
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block;opacity:1}
+
+  .main-topbar{flex-wrap:wrap;height:auto;min-height:44px;padding:8px 14px;gap:8px 12px}
+  .main-content{padding:14px}
+  .rpt-wrap{padding:14px 12px 40px}
+  .rpt{padding:18px 16px}
+  .card-body{padding:10px}
+  .hdr-emp{min-width:0;font-size:10px}
+  .hdr-emp select{min-width:0!important;max-width:38vw;font-size:11px!important}
+
+  .emp-info-bar{flex-wrap:wrap!important}
+  .emp-info-grid{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
+  .rpt-info-grid{grid-template-columns:repeat(2,1fr)!important}
+  .kpi-result-row{flex-direction:column!important}
+  .score-chips-grid{grid-template-columns:repeat(2,1fr)!important}
+  .team-summary-row{flex-wrap:wrap!important}
+  .team-summary-row>div{flex:1 1 calc(50% - 6px)!important}
+
+  .dim-cards,.fb-input-grid{grid-template-columns:1fr!important}
+  .fb-flow{flex-direction:column}
+  .role-strip{flex-wrap:wrap}
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — PHONE (≤560px)
+   ══════════════════════════════════════════════════════════ */
+@media (max-width:560px){
+  .lm-brand-name{font-size:12px}
+  .app-hdr{padding:0 8px}
+  .lm-logo-img,.lm-logo-fallback{height:28px;width:28px}
+  .main-content{padding:10px}
+  .card-title{padding:9px 12px;font-size:12px}
+  .rpt{padding:14px 10px;font-size:11.5px}
+  .rpt-wrap{padding:10px 8px 32px}
+  .main-section-name{font-size:12px}
+  .main-section-desc{display:none}
+  .rpt-tab{padding:6px 12px;font-size:11px}
+  .form-row{gap:8px}
+  .field{min-width:100%}
+  .rpt-info-grid{grid-template-columns:1fr!important}
+  .score-chips-grid{grid-template-columns:1fr!important}
+  .team-summary-row>div{flex:1 1 100%!important}
+  .emp-info-grid{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<div class="app-root">
+  <!-- ── HEADER ── -->
+  <header class="app-hdr">
+    <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="lm-brand">
+      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAmMAAAFvCAYAAAAG4sybAAAAAXNSR0IArs4c6QAAIABJREFUeF7snQeYFMXWhr/unjyzAQREMGBCvej1GjBhzhgxi4oJBUFyFhBQQURBEUQBRUzXcL2m3xwwJ8x6FSMqEgQE2d3Jobv/p2pmYZddmNmd2Zme3a+fxxvY6qpTb9XaH+ecOqWYpmmCDwmQAAmQAAmQAAmQQEEIKBRjBeHOQUmABEiABEiABEhAEqAY40YgARIgARIgARIggQISoBgrIHwOTQIkQAIkQAIkQAIUY9wDJEACJEACJEACJFBAAhRjBYTPoUmABEiABEiABEiAYox7gARIgARIgARIgAQKSIBirIDwOTQJkAAJkAAJkAAJUIxxD5AACZAACZAACZBAAQlQjBUQPocmARIgARIgARIgAYox7gESIAESIAESIAESKCABirECwufQJEACJEACJEACJEAxxj1AAiRAAiRAAiRAAgUkQDFWQPgcmgRIgARIgARIgAQoxrgHSIAESIAESIAESKCABCjGCgifQ5MACZAACZAACZAAxRj3AAmQAAmQAAmQAAkUkADFWAHhc2gSIAESIAESIAESoBjjHiABEiABEiABEiCBAhKgGCsgfA5NAiRAAiRAAiRAAhRj3AMkQAIkQAIkQAIkUEACFGMFhM+hSYAESIAESIAESIBijHuABEiABEiABEiABApIgGKsgPA5NAmQAAmQAAmQAAlQjHEPkAAJkAAJkAAJkEABCVCMFRA+hyYBEiABEiABEiABijHuARIgARIgARIgARIoIAGKsQLC59AkQAIkQAIkQAIkQDHGPUACJEACJEACJEACBSRAMVZA+ByaBEiABEiABEiABCjGuAdIgARIgARIgARIoIAEKMYKCJ9DkwAJkAAJkAAJkADFGPcACZAACZAACZAACRSQAMVYAeFzaBIgARIgARIgARKgGOMeIAESIAESIAESIIECEqAYKyB8Dk0CJEACJEACJEACFGPcAyRAAiRAAiRAAiRQQAIUYwWEz6FJgARIgARIgARIgGKMe4AESIAESIAESIAECkiAYqyA8Dk0CZAACZAACZAACVCMcQ+QAAmQAAmQAAmQQAEJUIwVED6HJgESIAESIAESIAGKMe4BEiABEiABEiABEiggAYqxAsLn0CRAAiRAAiRAAiRAMcY9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" alt="LOTTE Properties Hanoi" class="lm-logo-img" style="height:44px;width:auto">
+      <div class="lm-brand-text">
+        <div class="lm-brand-name">LOTTE</div>
+        <div class="lm-brand-sub">Properties Hanoi</div>
+      </div>
+      <div class="hdr-divider"></div>
+      <div class="hdr-system">HR Performance System</div>
+    </div>
+
+    <div class="hdr-emp" id="hdrEmp"></div>
+  </header>
+
+  <div class="app-body">
+    <!-- ══ SIDEBAR OVERLAY (mobile) ══ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+    <!-- ══ SHARED SIDEBAR ══ -->
+    <aside class="sidebar" id="sharedSidebar">
+      <div style="padding:12px 14px 10px;border-bottom:1px solid rgba(255,255,255,.08)">
+        <div style="font-size:9px;font-weight:700;color:rgba(255,255,255,.28);text-transform:uppercase;letter-spacing:.8px">Menu</div>
+      </div>
+      <nav class="sidebar-nav" style="padding:8px 8px 4px;flex:0 0 auto">
+        <button class="nav-item active kpi-nav" id="modeKpi" onclick="switchMode('kpi')" style="font-size:13.5px;font-weight:600;padding:11px 12px;text-transform:uppercase;letter-spacing:.4px">KPI Evaluation</button>
+        <button class="nav-item fb-nav" id="modeFb360Eval" onclick="switchMode('360eval')" style="font-size:13.5px;font-weight:600;padding:11px 12px;text-transform:uppercase;letter-spacing:.4px">360° Evaluation</button>
+        <button class="nav-item rpt-nav" id="modeRpt" onclick="switchMode('report')" style="font-size:13.5px;font-weight:600;padding:11px 12px;text-transform:uppercase;letter-spacing:.4px">Report KPI</button>
+        <button class="nav-item fb-nav" id="modeFb" onclick="switchMode('360')" style="font-size:13.5px;font-weight:600;padding:11px 12px;text-transform:uppercase;letter-spacing:.4px">Report 360° Review</button>
+      </nav>
+    </aside>
+    <!-- ══ PANEL WRAPPER ══ -->
+    <div style="flex:1;display:flex;overflow:hidden;position:relative">
+    <!-- ══ PANEL 1: KPI EVALUATION ══ -->
+    <div id="kpiPanel" class="panel-full">
+      <div class="main-area">
+        <div class="main-topbar">
+          <span class="badge-mode kpi">📊 KPI</span>
+          <span class="main-section-name">KPI on Goal Evaluation</span>
+          <span style="color:#CBD5E1">·</span>
+          <span class="main-section-desc">Sales Performance · Key Tasks · General Competency</span>
+        </div>
+        <div class="main-content" id="kpiContainer"></div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL 1b: 360° EVALUATION INPUT ══ -->
+    <div id="fb360EvalPanel" class="panel-full hidden">
+      <div class="main-area" style="overflow-y:auto">
+        <div class="main-content">
+          <div id="fb360EvalContent"></div>
+        </div>
+      </div>
+    </div>
+
+        <!-- ══ PANEL 2: 360° REVIEW ══ -->
+    <div id="fb360Panel" class="panel-full hidden">
+      <div class="main-area">
+        <div class="main-topbar">
+          <span class="badge-mode fb360">🔄 360°</span>
+          <span class="main-section-name">360° Review</span>
+          <span style="color:#CBD5E1">·</span>
+          <span class="main-section-desc">6 Dimensions · Scale 1–5</span>
+        </div>
+        <div class="main-content" id="fb360Container"></div>
+      </div>
+    </div>
+
+    <!-- ══ PANEL 3: REPORT ══ -->
+    <div id="reportPanel" class="panel-full hidden">
+      <div class="main-area">
+        <!-- Sub-tab bar -->
+        <div style="height:48px;background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:8px;flex-shrink:0">
+          <span style="font-size:11px;font-weight:600;color:#94A3B8;margin-right:6px">View:</span>
+          <button class="rpt-tab active" id="rptTabIndv" onclick="switchReportMode('individual')">👤 Individual Review</button>
+          <button class="rpt-tab" id="rptTabTeam" onclick="switchReportMode('team')">👥 Team Overview</button>
+        </div>
+        <div class="main-content" style="padding:0">
+          <div class="rpt-wrap">
+            <div class="rpt" id="reportContent" style="padding:0;background:transparent;border:none;box-shadow:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div><!-- /panel-wrapper -->
+  </div>
+</div>
+
+<script>
+// ══ CONSTANTS ══════════════════════════════════════════════
+const RANK_SCORE = {S:10,A:9,B:8,C:7};
+const RANK_LABEL = {S:'S – Outstanding',A:'A – Exceed Expectation',B:'B – Satisfactory',C:'C – Average'};
+
+
+const DIMS_STAFF = [
+  {name:'Interpersonal Skill',   desc:'Ability to interact effectively with colleagues, clients, and stakeholders.'},
+  {name:'Co-operation',          desc:'Willingness to collaborate, share information, and support team success.'},
+  {name:'Professional Competency',desc:'Knowledge, skills, and abilities required to perform the job well.'},
+  {name:'Work Etiquette',        desc:'Professional behavior, punctuality, and respect for workplace norms.'},
+  {name:'Morale',                desc:'Enthusiasm, positivity, and emotional resilience in the workplace.'},
+  {name:'Growth Mindset',        desc:'Openness to feedback, learning, and continuous personal improvement.'},
+];
+const DIMS_MGR = [
+  {name:'Interpersonal Skill',   desc:'Advanced relationship-building, conflict resolution, and communication.'},
+  {name:'Co-operation',          desc:'Promotes synergy within and across teams; leads by example.'},
+  {name:'Professional Competency',desc:'Deep expertise and ability to mentor team members.'},
+  {name:'Planning & Strategic',  desc:'Ability to set direction, forecast needs, and align team efforts with company goals.'},
+  {name:'Team Leadership',       desc:'Inspiring, guiding, and developing the team to high performance.'},
+  {name:'Work Management',       desc:'Efficient delegation, prioritization, and follow-through on team deliverables.'},
+];
+
+// ══ DATA ══════════════════════════════════════════════════
+const EMPLOYEES = [
+  {name:'Nguyễn Thị Hương', team:'Marketing', position:'Marketing Assistant (Event)',
+   kpi_demo:8.65, fb_demo:3.85,
+   role:'staff', start_date:'2023-01-15', grade:'Staff C1',
+   period:'2025', evaluator:'Trần Minh Tuấn', sign_date:'31/12/2025',
+   strengths:'Outstanding communication and customer relationship skills\nConsistently meets deadlines on all assigned tasks\nProactively proposes solutions to improve event programs\nEnthusiastically supports colleagues in cross-functional projects',
+   improvements:'Needs to further develop data analysis skills\nStrengthen strategic thinking and long-term planning\nImprove presentation skills for large audiences\nBe more proactive in staying up-to-date with industry trends',
+   ev_note:'Employee has performed well against the KPI targets for the 2025 review period. Demonstrates a positive work attitude and commitment to continuous self-development.'},
+  {name:'Lê Văn Hùng', team:'Sales', position:'Sales Executive',
+   kpi_demo:8.65, fb_demo:4.10,
+   role:'staff', start_date:'2022-06-01', grade:'Staff B2',
+   period:'2025', evaluator:'Trần Minh Tuấn', sign_date:'31/12/2025',
+   strengths:'Strong negotiation skills and client relationship management\nConsistently exceeds monthly revenue targets\nQuick learner with excellent product knowledge',
+   improvements:'Needs to improve documentation and CRM data entry habits\nCould be more collaborative with the marketing team\nShould develop stronger analytical and reporting skills',
+   ev_note:'Sales performance has been consistently strong throughout 2025. Employee shows great potential for advancement to a senior sales role.'},
+  {name:'Phạm Thị Lan', team:'Operations', position:'Operations Manager',
+   kpi_demo:9.52, fb_demo:4.35,
+   role:'manager', start_date:'2020-03-01', grade:'Manager M2',
+   period:'2025', evaluator:'Nguyễn Văn An', sign_date:'31/12/2025',
+   strengths:'Excellent operational planning and process optimization\nStrong leadership and team development track record\nData-driven decision making with clear KPI ownership',
+   improvements:'Delegation could be improved to empower junior staff more\nStrengthen cross-department communication and alignment\nDevelop more proactive risk management practices',
+   ev_note:'Manager demonstrates strong operational command and has significantly improved team efficiency in 2025. Ready to take on broader strategic responsibilities.'},
+  {name:'Trần Quốc Bảo', team:'IT', position:'Senior IT Specialist',
+   kpi_demo:7.55, fb_demo:3.45,
+   role:'staff', start_date:'2021-09-10', grade:'Staff A1',
+   period:'2025', evaluator:'Nguyễn Văn An', sign_date:'31/12/2025',
+   strengths:'Deep technical expertise in infrastructure and security\nProactively identifies and resolves system vulnerabilities\nExcellent troubleshooting skills under pressure',
+   improvements:'Communication with non-technical stakeholders needs improvement\nShould document solutions more thoroughly for knowledge sharing\nTime management during concurrent projects requires attention',
+   ev_note:'Technical contributions have been outstanding this year. Employee is a key pillar of system stability and is encouraged to grow into a team lead role.'},
+  {name:'Hoàng Minh Khoa', team:'Finance', position:'Finance Analyst',
+   kpi_demo:8.20, fb_demo:3.95,
+   role:'staff', start_date:'2022-03-14', grade:'Staff B1',
+   period:'2025', evaluator:'Trần Minh Tuấn', sign_date:'31/12/2025',
+   strengths:'Strong command of financial modeling and budget forecasting\nHighly accurate in financial reporting with zero major discrepancies\nProactively flags cost inefficiencies across departments',
+   improvements:'Should develop broader business acumen beyond finance scope\nPresentation skills for executive-level reporting need improvement\nCould be more proactive in cross-functional collaboration',
+   ev_note:'Finance Analyst demonstrates solid technical ability and consistency in delivering accurate financial data. Recommended for the B-grade advancement track in 2026.'},
+  {name:'Vũ Thu Hà', team:'HR', position:'HR Specialist',
+   kpi_demo:7.60, fb_demo:3.55,
+   role:'staff', start_date:'2023-07-01', grade:'Staff C2',
+   period:'2025', evaluator:'Trần Minh Tuấn', sign_date:'31/12/2025',
+   strengths:'Strong interpersonal skills and employee relations handling\nEfficient coordination of recruitment and onboarding processes\nGood understanding of labor law and internal HR policies',
+   improvements:'Needs to build deeper expertise in talent development frameworks\nHR data analysis and reporting skills require strengthening\nShould take more initiative in proposing HR policy improvements',
+   ev_note:'HR Specialist shows steady growth and reliable performance in day-to-day HR operations. Encouraged to pursue certification and take on more strategic HR tasks in 2026.'},
+  {name:'Đặng Văn Dũng', team:'Sales', position:'Sales Team Leader',
+   kpi_demo:9.10, fb_demo:4.22,
+   role:'leader', start_date:'2019-11-05', grade:'Leader A1',
+   period:'2025', evaluator:'Nguyễn Văn An', sign_date:'31/12/2025',
+   strengths:'Exceptional ability to motivate and guide the sales team to exceed targets\nStrategic thinker with a strong grasp of market dynamics\nDemonstrates excellent coaching and mentoring capabilities',
+   improvements:'Should further develop cross-departmental leadership presence\nDelegation efficiency can be improved to allow more focus on strategy\nStrengthen data-driven performance tracking within the team',
+   ev_note:'Sales Team Leader continues to deliver outstanding results and has been instrumental in achieving H2 sales targets. A strong candidate for senior leadership consideration.'},
+  {name:'Nguyễn Thị Ngọc Anh', team:'Operations', position:'Operations Coordinator',
+   kpi_demo:7.80, fb_demo:3.72,
+   role:'staff', start_date:'2022-09-20', grade:'Staff C1',
+   period:'2025', evaluator:'Nguyễn Văn An', sign_date:'31/12/2025',
+   strengths:'Reliable coordination of daily operational workflows\nStrong attention to detail in process documentation\nPositive attitude and willingness to support cross-team initiatives',
+   improvements:'Needs to improve prioritization when managing multiple tasks simultaneously\nShould develop stronger problem-solving skills under pressure\nFurther training in operations management tools recommended',
+   ev_note:'Operations Coordinator shows consistent effort and a strong work ethic. With targeted development, employee has good potential to grow into an Operations Executive role.'},
+  {name:'Bùi Quang Minh', team:'IT', position:'IT Department Manager',
+   kpi_demo:8.90, fb_demo:4.15,
+   role:'manager', start_date:'2018-06-01', grade:'Manager M1',
+   period:'2025', evaluator:'Nguyễn Văn An', sign_date:'31/12/2025',
+   strengths:'Strong technical leadership and system architecture decision-making\nEffective people management with a track record of developing IT talent\nProactively drives digital transformation initiatives across departments',
+   improvements:'Should improve communication cadence with non-technical senior management\nRisk documentation and IT governance frameworks need more rigor\nDevelop a stronger innovation roadmap aligned with business strategy',
+   ev_note:'IT Department Manager has successfully led two major infrastructure upgrades in 2025 while maintaining team stability. Demonstrates readiness for expanded leadership scope.'},
+];
+const D = Object.assign({}, EMPLOYEES[0]);
+const HR_CLASS = {};  // keyed by employee index, value: Excellent / G1 / G2 / G3 / NG
+let reportSubMode = 'individual';
+
+const SALES_KPIS = [
+  {label:'Gross Sales', std:'Achieved 3,000,000,000 VND', method:'Financial Report',
+   rank:{S:'130%↑',A:'115%↑',B:'100%↑',C:'100%↓'}, weight:10,
+   h1t:'1,200,000,000 VND', h1a:'1,500,000,000 (125%)', h1e1:'A', h1e2:'A',
+   h2t:'1,800,000,000 VND', h2a:'2,100,000,000 (117%)', h2e1:'A', h2e2:'A'},
+  {label:'Gross Profit', std:'Achieved 1,000,000,000 VND', method:'Financial Report',
+   rank:{S:'120%↑',A:'110%↑',B:'100%↑',C:'100%↓'}, weight:10,
+   h1t:'400,000,000 VND', h1a:'350,000,000 (88%)', h1e1:'C', h1e2:'C',
+   h2t:'600,000,000 VND', h2a:'680,000,000 (113%)', h2e1:'B', h2e2:'A'},
+  {label:'Net Profit', std:'Achieved 500,000,000 VND', method:'Financial Report',
+   rank:{S:'110%↑',A:'105%↑',B:'100%↑',C:'100%↓'}, weight:10,
+   h1t:'200,000,000 VND', h1a:'220,000,000 (110%)', h1e1:'S', h1e2:'A',
+   h2t:'300,000,000 VND', h2a:'315,000,000 (105%)', h2e1:'B', h2e2:'A'},
+];
+
+const TASK_KPIS = {
+  staff:[
+    {label:'Event Marketing – Mass Customers', std:'Organizing Event Marketing for mass customers',
+     method:'Event must be organized successfully',
+     rank:{S:'H1:3/H2:4 events',A:'H1:2/H2:3',B:'H1:1/H2:2',C:'H1:0/H2:1'}, weight:5,
+     h1t:'1 event', h1a:'1 event', h1e1:'B', h1e2:'B', h2t:'2 events', h2a:'2 events', h2e1:'B', h2e2:'A'},
+    {label:'New Membership', std:'Secure 300,000 new membership',
+     method:'CRM Report attached',
+     rank:{S:'100%↑',A:'90%↑',B:'80%↑',C:'80%↓'}, weight:5,
+     h1t:'150,000 members', h1a:'145,000 (97%)', h1e1:'A', h1e2:'B', h2t:'150,000', h2a:'163,000 (109%)', h2e1:'B', h2e2:'A'},
+    {label:'Event Marketing – Membership', std:'Organizing Event Marketing for membership customers',
+     method:'Event must be organized successfully',
+     rank:{S:'H1:3/H2:3',A:'H1:2/H2:2',B:'H1:1/H2:1',C:'H1:0/H2:0'}, weight:5,
+     h1t:'1 event', h1a:'1 event', h1e1:'B', h1e2:'A', h2t:'1 event', h2a:'1 event', h2e1:'B', h2e2:'B'},
+    {label:'Attract Customers to Events', std:'Traffic at events from organized events',
+     method:'Customers Participation Report attached',
+     rank:{S:'H1:20K/H2:30K',A:'H1:15K/H2:25K',B:'H1:10K/H2:20K',C:'H1:10K↓/H2:20K↓'}, weight:10,
+     h1t:'>10,000 customers', h1a:'12,345 customers', h1e1:'B', h1e2:'B', h2t:'>20,000', h2a:'>21,500 customers', h2e1:'B', h2e2:'A'},
+    {label:'New Customers Acquired', std:'New customers from events',
+     method:'Report Attached',
+     rank:{S:'H1:15K/H2:25K',A:'H1:10K/H2:20K',B:'H1:5K/H2:10K',C:'H1:5K↓/H2:10K↓'}, weight:5,
+     h1t:'>5,000 customers', h1a:'4,950 customers', h1e1:'C', h1e2:'C', h2t:'>10,000', h2a:'>11,200 customers', h2e1:'B', h2e2:'B'},
+    {label:'Sale Results from Events', std:'Revenue generated from events',
+     method:'Report Attached',
+     rank:{S:'H1:200M/H2:400M',A:'H1:150M/H2:300M',B:'H1:100M/H2:200M',C:'H1:100M↓/H2:200M↓'}, weight:10,
+     h1t:'100,000,000 VND↑', h1a:'120,000,000 VND', h1e1:'B', h1e2:'A', h2t:'200,000,000', h2a:'230,000,000 VND (115%)', h2e1:'A', h2e2:'B'},
+    {label:'Brand Collaboration', std:'% of registered brands joining before event',
+     method:'Report Attached',
+     rank:{S:'80%↑',A:'70%↑',B:'65%↑',C:'50%↓'}, weight:10,
+     h1t:'65%↑', h1a:'68%', h1e1:'B', h1e2:'B', h2t:'70%↑', h2a:'73%', h2e1:'A', h2e2:'B'},
+  ],
+  manager:[
+    {label:'Team KPI Achievement Rate', std:'Overall team KPI score vs target', method:'HR System',
+     rank:{S:'≥95%',A:'≥90%',B:'≥85%',C:'<85%'}, weight:15,
+     h1t:'85%', h1a:'97%', h1e1:'S', h1e2:'S', h2t:'90%', h2a:'98%', h2e1:'S', h2e2:'S'},
+    {label:'Department Revenue', std:'Total department revenue achievement', method:'Financial Report',
+     rank:{S:'≥115%',A:'≥105%',B:'≥100%',C:'<100%'}, weight:15,
+     h1t:'100%', h1a:'118%', h1e1:'S', h1e2:'S', h2t:'100%', h2a:'122%', h2e1:'S', h2e2:'S'},
+    {label:'Staff Development', std:'Number of staff promoted or upskilled', method:'HR Record',
+     rank:{S:'≥4 staff',A:'3 staff',B:'2 staff',C:'1 staff'}, weight:10,
+     h1t:'2 staff', h1a:'4 staff', h1e1:'S', h1e2:'S', h2t:'2 staff', h2a:'4 staff', h2e1:'S', h2e2:'S'},
+    {label:'Strategic Project Completion', std:'Key projects delivered on time', method:'Project Report',
+     rank:{S:'100%',A:'90%',B:'80%',C:'<80%'}, weight:10,
+     h1t:'1 project', h1a:'1/1 project (100%)', h1e1:'S', h1e2:'S', h2t:'1 project', h2a:'1/1 project (100%)', h2e1:'S', h2e2:'S'},
+  ],
+  leader:[
+    {label:'Division Performance Score', std:'Overall division KPI vs target', method:'HR System',
+     rank:{S:'≥95%',A:'≥90%',B:'≥85%',C:'<85%'}, weight:15,
+     h1t:'90%', h1a:'93%', h1e1:'A', h1e2:'A', h2t:'90%', h2a:'96%', h2e1:'S', h2e2:'A'},
+    {label:'Strategic Initiative Delivery', std:'Divisional strategic goals achieved', method:'Board Report',
+     rank:{S:'100%+',A:'90%',B:'80%',C:'<80%'}, weight:15,
+     h1t:'80%', h1a:'85%', h1e1:'B', h1e2:'A', h2t:'90%', h2a:'92%', h2e1:'A', h2e2:'A'},
+    {label:'Cross-team Collaboration', std:'Cross-functional projects led successfully', method:'Project Tracker',
+     rank:{S:'≥3 projects',A:'2 projects',B:'1 project',C:'0'}, weight:10,
+     h1t:'1 project', h1a:'1 project', h1e1:'B', h1e2:'A', h2t:'2 projects', h2a:'2 projects', h2e1:'A', h2e2:'A'},
+    {label:'Capability Development', std:'Manager-level promotions facilitated', method:'HR Record',
+     rank:{S:'≥2 mgr',A:'1-2 mgr',B:'1 mgr',C:'0'}, weight:10,
+     h1t:'1 manager', h1a:'1 person', h1e1:'A', h1e2:'A', h2t:'1 manager', h2a:'2 people', h2e1:'S', h2e2:'A'},
+  ],
+};
+
+const COMP_KPIS = [
+  {label:'Risk Management', std:'Deduction for damage to company image, info security violation, or failure to improve internal accounting',
+   method:'Direct evaluation', rank:{S:'10',A:'9',B:'8',C:'7'}, weight:8,
+   h1t:'—', h1a:'0 violations; complied with all data & brand protocols', h1e1:'S', h1e2:'A',
+   h2t:'—', h2a:'0 incidents; contributed to 1 internal process review', h2e1:'S', h2e2:'S'},
+  {label:'Leadership / Loyalty', std:'Evaluation of differentiated expertise, communication ability, decision-making, vision/direction, and immersion forming ability',
+   method:'Direct evaluation', rank:{S:'10',A:'9',B:'8',C:'7'}, weight:7,
+   h1t:'—', h1a:'Led event team coordination; high commitment score from peers', h1e1:'S', h1e2:'A',
+   h2t:'—', h2a:'Mentored 1 junior staff; proactive cross-dept collaboration', h2e1:'S', h2e2:'S'},
+  {label:'Strategic Development', std:'Qualitative evaluation on establishment and implementation of challenging/innovative goals',
+   method:'Direct evaluation', rank:{S:'10',A:'9',B:'8',C:'7'}, weight:5,
+   h1t:'—', h1a:'Proposed 1 new event concept; partially adopted by management', h1e1:'A', h1e2:'A',
+   h2t:'—', h2a:'Implemented social media strategy update; +15% engagement', h2e1:'A', h2e2:'A'},
+];
+
+// 360° scores — 4 raters × 6 dimensions
+const FB = {
+  r0: [4,4,4,4,4,4], // self (not used)
+  r1: [4,3,4,4,3,4], // peer 1
+  r2: [3,4,5,3,4,3], // peer 2
+  r3: [4,4,4,5,4,4], // direct manager / team leader
+  r4: [3,4,4,3,4,3], // cross-dept peer / staff 2
+  r5: [4,3,5,4,3,4], // dept head / skip-level
+  r6: [3,4,4,4,4,3], // peer 3
+  r7: [4,4,3,4,3,5], // senior peer
+  team: [3.8,3.9,4.1,3.7,3.8,4.0],
+};
+
+let currentMode='kpi';
+let isAdmin = false;
+let fb360Chart = null;
+
+// ══ HELPERS ═══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const fmt = (v,d=2) => (isNaN(v)||v==null)?'—':Number(v).toFixed(d);
+const evalScore = r => RANK_SCORE[r]||8;
+const getDims = () => (D.role==='staff')?DIMS_STAFF:DIMS_MGR;
+const getTasks = () => TASK_KPIS[D.role]||TASK_KPIS.staff;
+function getRank(s){ return s>=9.5?'S':s>=8.5?'A':s>=7.5?'B':'C'; }
+
+function scoreKpi(k){
+  const h1=(evalScore(k.h1e1)+evalScore(k.h1e2))/2;
+  const h2=(evalScore(k.h2e1)+evalScore(k.h2e2))/2;
+  const fin=h1*0.3+h2*0.7;
+  return {h1,h2,fin,contrib:fin*(k.weight/100)};
+}
+
+// ══ CALC ══════════════════════════════════════════════════
+function calc(){
+  let sc=0,tc=0,cc=0;
+  const sS=SALES_KPIS.map(k=>{const s=scoreKpi(k);sc+=s.contrib;return{...k,...s};});
+  const tS=getTasks().map(k=>{const s=scoreKpi(k);tc+=s.contrib;return{...k,...s};});
+  const cS=COMP_KPIS.map(k=>{const s=scoreKpi(k);cc+=s.contrib;return{...k,...s};});
+  const total=sc+tc+cc, score5=total/2;
+  const dims=getDims();
+  const fb_avg=dims.map((_,i)=>{
+    const vs=[FB.r1[i],FB.r2[i],FB.r3[i],FB.r4[i],FB.r5[i],FB.r6[i],FB.r7[i]].filter(v=>v>0);
+    return vs.length ? vs.reduce((a,v)=>a+v,0)/vs.length : 0;
+  });
+  const fb_overall=fb_avg.reduce((a,v)=>a+v,0)/fb_avg.length;
+  return{sS,tS,cS,sc,tc,cc,total,score5,fb_avg,fb_overall,ranking:getRank(total)};
+}
+
+// ══ SIDEBAR KPI UPDATE ════════════════════════════════════
+function updateLiveKPI(){
+  const c=calc();
+  const set=(id,v)=>{const e=$(id);if(e)e.textContent=v;};
+  set('skKpiTotal',fmt(c.total,2));
+  set('skKpi5',fmt(c.score5,2));
+  set('skSales',fmt(c.sc,4));
+  set('skTasks',fmt(c.tc,4));
+  set('skComp',fmt(c.cc,4));
+  set('sk360Avg',fmt(c.fb_overall,2));
+  // hdrEmp is a static select – do not overwrite
+  if($('skKpiRank')){
+    const cls={S:'s',A:'a',B:'b',C:'c'}[c.ranking];
+    const lbl={S:'Outstanding',A:'Exceed Expectation',B:'Satisfactory',C:'Average'}[c.ranking];
+    $('skKpiRank').innerHTML=`<span class="sk-badge ${cls}">${c.ranking} · ${lbl}</span>`;
+  }
+  if($('sk360Dims')){
+    const dims=getDims();
+    $('sk360Dims').innerHTML=dims.slice(0,3).map((d,i)=>`
+      <div class="sk-item"><div class="sk-lbl">${d.name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="sk-val" style="font-size:15px">${fmt(c.fb_avg[i],1)}</div><div class="sk-unit">/ 5.0</div></div>`).join('');
+  }
+  ['sales','tasks','comp'].forEach(cat=>{
+    const kpis=cat==='sales'?SALES_KPIS:cat==='comp'?COMP_KPIS:getTasks();
+    kpis.forEach((k,i)=>{
+      const s=scoreKpi(k), rk=getRank(s.fin);
+      const upd=(sfx,v,cls)=>{const e=$(`${cat}_${i}_${sfx}`);if(!e)return;e.textContent=v;if(cls)e.className=cls;};
+      upd('h1avg',fmt(s.h1,2));upd('h2avg',fmt(s.h2,2));upd('yr',fmt(s.fin,2));upd('rk',rk,'rk-cell rk-'+rk);
+    });
+    const tot=kpis.reduce((s,k)=>s+scoreKpi(k).contrib,0);
+    const te=$(`${cat}_total`);if(te)te.textContent=fmt(tot,4)+' pts';
+  });
+}
+
+// ══ (no sidebar nav builders needed) ══════════════════════
+
+// ══ KPI TABLE BUILDER ═════════════════════════════════════
+function rankSelHTML(cat,idx,half,cur){
+  const sel=`<select class="rank-sel" onchange="updEval('${cat}',${idx},'${half}',this.value)">`;
+  return sel+['S','A','B','C'].map(r=>`<option value="${r}"${r===cur?' selected':''}>${r}·${RANK_SCORE[r]}</option>`).join('')+'</select>';
+}
+function kpiTableHTML(kpis,cat,catLabel,wt){
+  const inp=(val,ph,cb)=>`<input style="width:100%;padding:4px 6px;border:1.5px solid #CBD5E1;border-radius:4px;font-size:11px;font-family:inherit;text-align:center;outline:none;background:#fff" value="${val}" placeholder="${ph}" oninput="${cb}">`;
+  const rows=kpis.map((k,i)=>{
+    const yr=evalScore(k.h1e1)*0.3+evalScore(k.h2e1)*0.7;
+    const rk=getRank(yr);
+    return `<tr>
+      <td style="padding:7px 10px;min-width:200px">
+        <div style="font-weight:700;font-size:12px;color:#0F172A">${k.label}</div>
+        <div style="font-size:10.5px;color:#94A3B8;margin-top:2px">${k.std}</div>
+      </td>
+      <td class="c b" style="background:#EEF2FF;color:var(--blue);width:46px;white-space:nowrap">${k.weight}%</td>
+      <td class="c" style="padding:4px;min-width:100px">${inp(k.h1a,k.h1t,"KPIS_REF['"+cat+"']["+i+"].h1a=this.value;updateLiveKPI()")}</td>
+      <td class="c" style="padding:3px">${rankSelHTML(cat,i,'h1e1',k.h1e1)}</td>
+      <td class="c" style="padding:4px;min-width:100px">${inp(k.h2a,k.h2t,"KPIS_REF['"+cat+"']["+i+"].h2a=this.value;updateLiveKPI()")}</td>
+      <td class="c" style="padding:3px">${rankSelHTML(cat,i,'h2e1',k.h2e1)}</td>
+      <td class="c b hl" style="font-size:13px" id="${cat}_${i}_yr">${fmt(yr,2)}</td>
+      <td class="rk-${rk}" id="${cat}_${i}_rk">${rk}</td>
+    </tr>`;
+  }).join('');
+  const tot=kpis.reduce((s,k)=>s+(evalScore(k.h1e1)*0.3+evalScore(k.h2e1)*0.7)*k.weight/100,0);
+  return `<div style="font-size:11px;color:var(--muted);margin-bottom:6px">
+    ${catLabel} &nbsp;·&nbsp; Total weight: <b>${wt}%</b> &nbsp;·&nbsp; Method: ${kpis[0]?.method||'—'}
+  </div>
+  <div class="rpt" style="overflow-x:auto"><table>
+    <thead>
+      <tr>
+        <th class="main-h left" rowspan="2">KPI Goal</th>
+        <th class="main-h" rowspan="2" style="width:46px">Wt%</th>
+        <th colspan="2" class="h1h">H1 (Jan–Jun) · 30%</th>
+        <th colspan="2" class="h2h">H2 (Jul–Dec) · 70%</th>
+        <th class="yh" rowspan="2" style="width:60px">Year</th>
+        <th class="yh" rowspan="2" style="width:44px">Rank</th>
+      </tr>
+      <tr>
+        <th class="h1h">Actual</th><th class="h1h">Eval</th>
+        <th class="h2h">Actual</th><th class="h2h">Eval</th>
+      </tr>
+    </thead>
+    <tbody>${rows}
+      <tr>
+        <td class="total b" colspan="2">▸ Group Contribution</td>
+        <td class="total" colspan="6" id="${cat}_total">${fmt(tot,4)} pts</td>
+      </tr>
+    </tbody>
+  </table></div>`;
+}
+
+// Reference map for updEval
+const KPIS_REF = {sales:SALES_KPIS, comp:COMP_KPIS};
+// tasks is dynamic, handled separately
+function updEval(cat,idx,field,val){
+  const kpis=cat==='sales'?SALES_KPIS:cat==='comp'?COMP_KPIS:getTasks();
+  if(!kpis[idx])return;
+  kpis[idx][field]=val;
+  updateLiveKPI();
+}
+
+// ══ RENDER KPI – SINGLE PAGE ══════════════════════════════
+function renderKpiSection(){
+  const ct=$('kpiContainer');
+  KPIS_REF.tasks=getTasks();
+  const roleLbl={staff:'Staff (Event / CRM / Digital)',manager:'Manager (Department)',leader:'Leader / Team Leader'}[D.role]||D.role;
+  const h=`
+    <div style="background:#fff;border:1px solid #E2E8F0;border-radius:8px;padding:10px 14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05)">
+      <div class="emp-info-bar" style="display:flex;align-items:center;gap:10px;flex-wrap:nowrap">
+        <div class="emp-info-grid" style="display:grid;grid-template-columns:2fr 1fr 1.5fr 0.9fr 0.8fr 0.75fr 1fr;gap:0 10px;flex:1;min-width:0">
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Full Name</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332;font-weight:600" value="${D.name}" oninput="D.name=this.value;updateLiveKPI()"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Department</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.team}" oninput="D.team=this.value;updateLiveKPI()"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Position</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.position}" oninput="D.position=this.value"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Start Date</div><input type="date" style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.start_date}" oninput="D.start_date=this.value"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Grade</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.grade}" oninput="D.grade=this.value"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Year</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.period}" oninput="D.period=this.value"></div>
+          <div><div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px">Evaluator</div><input style="width:100%;padding:4px 8px;font-size:12px;font-family:inherit;border:1px solid #CBD5E1;border-radius:5px;outline:none;color:#1A2332" value="${D.evaluator}" oninput="D.evaluator=this.value"></div>
+        </div>
+        <div style="flex-shrink:0;margin-left:4px">
+          <span class="role-chip ${D.role} active" style="padding:4px 12px;font-size:10.5px;border-radius:6px;cursor:default;pointer-events:none;white-space:nowrap">${{staff:'👤 Staff',manager:'💼 Manager',leader:'🎖️ Leader'}[D.role]||D.role}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">I. Sales Performance <span style="font-size:12px;font-weight:400;color:var(--muted)">· Weight: 30%</span></div>
+      <div class="card-body" style="padding:12px 8px">
+        ${kpiTableHTML(SALES_KPIS,'sales','Sales Performance (3 KPIs)',30)}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">II. Key Tasks – <span style="color:var(--teal)">${roleLbl}</span> <span style="font-size:12px;font-weight:400;color:var(--muted)">· Weight: 50%</span></div>
+      <div class="card-body" style="padding:12px 8px">
+        ${kpiTableHTML(getTasks(),'tasks','Key Tasks',50)}
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">III. General Competency <span style="font-size:12px;font-weight:400;color:var(--muted)">· Weight: 20%</span></div>
+      <div class="card-body" style="padding:12px 8px">
+        ${kpiTableHTML(COMP_KPIS,'comp','General Competency (3 items)',20)}
+      </div>
+    </div>
+
+    <!-- Submit bar -->
+    <div style="display:flex;justify-content:flex-end;padding:8px 0 16px">
+      <button onclick="submitKpiEval()" style="padding:10px 32px;background:#1E3A8A;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;letter-spacing:.3px;box-shadow:0 2px 8px rgba(30,58,138,.3);transition:background .15s" onmouseover="this.style.background='#1565C0'" onmouseout="this.style.background='#1E3A8A'">✓ Submit Evaluation</button>
+    </div>`;
+
+  ct.innerHTML=h; updateLiveKPI();
+}
+
+// ══ ROLE SWITCH ═══════════════════════════════════════════
+function submitKpiEval(){
+  const c=calc();
+  const btn=document.querySelector('[onclick="submitKpiEval()"]');
+  if(btn){
+    btn.textContent='✓ Submitted!';
+    btn.style.background='#1B5E20';
+    btn.disabled=true;
+    setTimeout(()=>{
+      btn.textContent='✓ Submit Evaluation';
+      btn.style.background='#1E3A8A';
+      btn.disabled=false;
+    },3000);
+  }
+  console.log('KPI Evaluation submitted for',D.name,'– Total:',c.total.toFixed(2),'Rank:',c.ranking);
+}
+
+function setRole(r){
+  D.role=r;
+  KPIS_REF.tasks=getTasks();
+  renderKpiSection();
+  updateLiveKPI();
+}
+
+// ══ RENDER 360° – SINGLE PAGE ═════════════════════════════
+function renderFb360EvalSection(){
+  const dims=getDims();
+  const raterKeys=['r1','r2','r3','r4','r5','r6','r7'];
+  const raterLabels={
+    staff:['Peer 1','Peer 2','Direct Manager','Cross-dept Peer','Dept Head','Peer 3','Senior Peer'],
+    manager:['Staff 1','Staff 2','Team Leader','Cross-dept','Skip-level','Peer Manager','Director'],
+    leader:['Manager 1','Manager 2','Director','Cross-div','Board Rep','Peer Leader','Advisor']
+  };
+  const labels=(raterLabels[D.role]||raterLabels.staff);
+  const sel=$('fb360EvalRaterSel');
+  const evalKey=(sel&&sel.value)||'r1';
+  const curScores=FB[evalKey]?[...FB[evalKey]]:[0,0,0,0,0,0];
+
+  const raterOpts=raterKeys.map((k,i)=>
+    `<option value="${k}"${k===evalKey?' selected':''}>${labels[i]}</option>`).join('');
+
+  const scoreBtn=(rk,di,v)=>{
+    const active=curScores[di]===v;
+    const cols=['','#B71C1C','#6A1B9A','#E65100','#1565C0','#1B5E20'];
+    const col=cols[v]||'#64748B';
+    const bg=active?col:'#F8FAFC';
+    const fc=active?'#fff':'#94A3B8';
+    const border=active?col:'#E2E8F0';
+    return `<button onclick="setFb360Score('${rk}',${di},${v})" style="width:38px;height:38px;border:2px solid ${border};border-radius:8px;background:${bg};color:${fc};font-size:13px;font-weight:800;cursor:pointer;transition:all .12s">${v}</button>`;
+  };
+
+  const scaleDesc=[
+    {v:1,lbl:'Poor',col:'#B71C1C'},
+    {v:2,lbl:'Below Avg',col:'#6A1B9A'},
+    {v:3,lbl:'Good',col:'#E65100'},
+    {v:4,lbl:'Very Good',col:'#1565C0'},
+    {v:5,lbl:'Excellent',col:'#1B5E20'}
+  ];
+
+  const rows=dims.map((d,i)=>`
+    <tr style="border-bottom:1px solid #F1F5F9">
+      <td style="padding:14px 16px;min-width:240px">
+        <div style="font-weight:700;font-size:12.5px;color:#0F172A">${d.name}</div>
+        <div style="font-size:10.5px;color:#94A3B8;margin-top:2px;line-height:1.4">${d.desc}</div>
+      </td>
+      <td style="padding:10px 16px;text-align:center">
+        <div style="display:flex;gap:7px;justify-content:center;align-items:center">
+          ${[1,2,3,4,5].map(v=>scoreBtn(evalKey,i,v)).join('')}
+        </div>
+      </td>
+      <td style="padding:10px 16px;text-align:center;width:70px">
+        ${curScores[i]>0
+          ? `<span style="font-size:22px;font-weight:900;color:#1565C0">${curScores[i]}</span>`
+          : `<span style="font-size:16px;color:#CBD5E1">—</span>`}
+      </td>
+    </tr>`).join('');
+
+  const filled=curScores.filter(v=>v>0);
+  const avg=filled.length?filled.reduce((a,v)=>a+v,0)/filled.length:0;
+  const progress=Math.round(filled.length/dims.length*100);
+
+  $('fb360EvalContent').innerHTML=`
+    <div style="background:#fff;border-radius:12px;padding:24px 28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-family:'Be Vietnam Pro',system-ui,sans-serif">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;border-bottom:2px solid #E8EAF6;padding-bottom:16px;margin-bottom:20px">
+        <div>
+          <div style="font-size:10px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px">360° Review Evaluation</div>
+          <div style="font-size:20px;font-weight:800;color:#0F172A">Evaluator: <span style="color:#1565C0">${D.name}</span></div>
+          <div style="font-size:12px;color:#64748B;margin-top:3px">${D.position} · ${D.team}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div style="font-size:11px;color:#64748B;font-weight:600">You are evaluating as:</div>
+          <select id="fb360EvalRaterSel" onchange="renderFb360EvalSection()" style="padding:7px 14px;border:1.5px solid #CBD5E1;border-radius:8px;font-size:12.5px;font-family:inherit;background:#fff;cursor:pointer;font-weight:700;color:#1E3A8A;outline:none">
+            ${raterOpts}
+          </select>
+          <div style="font-size:10px;color:#94A3B8">Progress: ${progress}% (${filled.length}/${dims.length} dimensions)</div>
+        </div>
+      </div>
+
+      <!-- Scale legend -->
+      <div style="display:flex;gap:12px;margin-bottom:16px;flex-wrap:wrap">
+        ${scaleDesc.map(s=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px">
+          <span style="width:24px;height:24px;border-radius:6px;background:${s.col};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">${s.v}</span>
+          <span style="color:#64748B">${s.lbl}</span>
+        </div>`).join('')}
+      </div>
+
+      <!-- Table -->
+      <div style="border:1.5px solid #E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:16px">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr>
+              <th style="background:#1E3A8A;color:#fff;padding:11px 16px;text-align:left;font-size:11px;font-weight:700">Dimension</th>
+              <th style="background:#1E3A8A;color:#fff;padding:11px 16px;text-align:center;font-size:11px;font-weight:700">Rating (click to select)</th>
+              <th style="background:#1E3A8A;color:#fff;padding:11px 16px;text-align:center;font-size:11px;font-weight:700;width:80px">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows}
+            <tr style="background:#EEF2FF">
+              <td colspan="2" style="padding:13px 16px;font-size:12px;font-weight:700;color:#1E3A8A">Average Score (${filled.length}/${dims.length} rated)</td>
+              <td style="padding:13px 16px;text-align:center">
+                ${avg>0?`<span style="font-size:22px;font-weight:900;color:#1565C0">${avg.toFixed(2)}</span><div style="font-size:9px;color:#64748B">/ 5.00</div>`:'<span style="color:#CBD5E1;font-size:18px">—</span>'}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;justify-content:flex-end;gap:10px">
+        <button onclick="resetFb360Eval()" style="padding:9px 20px;border:1.5px solid #E2E8F0;border-radius:8px;background:#fff;font-size:12px;font-weight:600;color:#64748B;cursor:pointer;font-family:inherit">↺ Reset</button>
+        <button onclick="saveFb360Eval()" style="padding:9px 24px;border:none;border-radius:8px;background:#1E3A8A;color:#fff;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit">✓ Submit</button>
+      </div>
+    </div>`;
+}
+
+function setFb360Score(rk,di,v){
+  if(!FB[rk])FB[rk]=[0,0,0,0,0,0];
+  FB[rk][di]=(FB[rk][di]===v)?0:v;
+  renderFb360EvalSection();
+}
+function resetFb360Eval(){
+  const rk=$('fb360EvalRaterSel')?$('fb360EvalRaterSel').value:'r1';
+  FB[rk]=[0,0,0,0,0,0];
+  renderFb360EvalSection();
+}
+function saveFb360Eval(){
+  const rk=$('fb360EvalRaterSel')?$('fb360EvalRaterSel').value:'r1';
+  const n=getDims().length;
+  const filled=(FB[rk]||[]).filter(v=>v>0).length;
+  if(filled<n){alert('Please rate all '+n+' dimensions before saving.');return;}
+  const btn=document.activeElement;
+  if(btn){btn.textContent='✓ Submitted!';btn.style.background='#1B5E20';setTimeout(()=>{btn.textContent='✓ Submit';btn.style.background='#1E3A8A';},2000);}
+}
+
+function renderFbSection(){
+  const ct=$('fb360Container');
+  const dims=getDims();
+  const isStaff=(D.role==='staff');
+  const c=calc();
+
+  // Rater configs: 5 external raters, no self
+  const ratersAdmin=isStaff
+    ?[{key:'r1',label:'Peer 1 (Colleague)',cls:'peer'},
+      {key:'r2',label:'Peer 2 (Colleague)',cls:'peer'},
+      {key:'r3',label:'Direct Manager',cls:'mgr'},
+      {key:'r4',label:'Cross-dept Peer',cls:'peer'},
+      {key:'r5',label:'Department Head',cls:'mgr'},
+      {key:'r6',label:'Peer 3 (Colleague)',cls:'peer'},
+      {key:'r7',label:'Senior Colleague',cls:'peer'}]
+    :[{key:'r1',label:'Staff 1 (Direct)',cls:'peer'},
+      {key:'r2',label:'Staff 2 (Direct)',cls:'peer'},
+      {key:'r3',label:'Peer Manager',cls:'mgr'},
+      {key:'r4',label:'Team Leader / SD',cls:'mgr'},
+      {key:'r5',label:'Department Head',cls:'mgr'},
+      {key:'r6',label:'Staff 3 (Direct)',cls:'peer'},
+      {key:'r7',label:'Cross-dept Manager',cls:'mgr'}];
+  const ratersUser=isStaff
+    ?[{key:'r1',label:'Evaluator 1',cls:'peer'},
+      {key:'r2',label:'Evaluator 2',cls:'peer'},
+      {key:'r3',label:'Direct Manager',cls:'mgr'},
+      {key:'r4',label:'Evaluator 3',cls:'peer'},
+      {key:'r5',label:'Senior Evaluator',cls:'mgr'},
+      {key:'r6',label:'Evaluator 4',cls:'peer'},
+      {key:'r7',label:'Evaluator 5',cls:'peer'}]
+    :[{key:'r1',label:'Evaluator 1',cls:'peer'},
+      {key:'r2',label:'Evaluator 2',cls:'peer'},
+      {key:'r3',label:'Evaluator 3',cls:'mgr'},
+      {key:'r4',label:'Team Leader / SD',cls:'mgr'},
+      {key:'r5',label:'Senior Evaluator',cls:'mgr'},
+      {key:'r6',label:'Evaluator 4',cls:'peer'},
+      {key:'r7',label:'Evaluator 5',cls:'peer'}];
+  const raters=isAdmin?ratersAdmin:ratersUser;
+
+  // Completion badge (admin only)
+  const badge=k=>{
+    if(!isAdmin)return'';
+    const done=FB[k].some(v=>v>0);
+    return done
+      ?'<span style="font-size:9px;background:#E8F5E9;color:#1B5E20;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:6px">✓ Done</span>'
+      :'<span style="font-size:9px;background:#FFEBEE;color:#C62828;padding:1px 6px;border-radius:4px;font-weight:700;margin-left:6px">⏳ Pending</span>';
+  };
+
+  // Admin toggle button
+  const adminBtn=`<button onclick="isAdmin=!isAdmin;renderFbSection()"
+    style="padding:4px 12px;border-radius:6px;border:1.5px solid ${isAdmin?'var(--blue)':'var(--border)'};
+    background:${isAdmin?'var(--blue-bg)':'#fff'};color:${isAdmin?'var(--blue)':'var(--muted)'};
+    font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px">
+    ${isAdmin?'🔓 Admin View':'👤 User View'}
+  </button>`;
+
+  // Evaluator cards
+  const personCards=raters.map(r=>`
+    <div class="fb-input-card ${r.cls==='mgr'?'':''}">
+      <div class="fb-card-lbl ${r.cls}">${r.label}${badge(r.key)}</div>
+      ${dims.map((d,i)=>`
+        <div class="fb-dim-row">
+          <span class="dim-lbl">${i+1}. ${d.name.split(' ').slice(0,2).join(' ')}</span>
+          <input class="fb-score-inp" type="number" min="1" max="5" step="0.5" value="${FB[r.key][i]}"
+            oninput="updFB('${r.key}',${i},this.value)">
+        </div>`).join('')}
+    </div>`).join('');
+
+
+  const rank360=c.fb_overall>=4.75?'S':c.fb_overall>=4.25?'A':c.fb_overall>=3.75?'B':'C';
+  const rankColor360=rank360==='S'?'#6A1B9A':rank360==='A'?'#1B5E20':rank360==='B'?'#1565C0':'#C62828';
+  const rankLbl360={S:'S – Outstanding',A:'A – Exceed Expectation',B:'B – Satisfactory',C:'C – Average'}[rank360];
+  const summaryPanel=`
+    <div style="background:#fff;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:14px">
+      <div style="padding:9px 14px;border-bottom:1px solid var(--border);background:#FAFBFC;font-size:12px;font-weight:700;display:flex;align-items:center;gap:7px">
+        <span style="width:26px;height:26px;border-radius:6px;background:var(--purple-bg);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:13px">📊</span>
+        Score Summary
+      </div>
+      <div style="display:flex;gap:0;align-items:stretch;min-height:320px">
+
+        <!-- ① Radar flex:5 ~45% -->
+        <div style="flex:5;border-right:1px solid var(--border);padding:14px 20px;display:flex;flex-direction:column;align-items:center;min-width:0">
+          <div style="font-size:12px;font-weight:800;color:#1565C0;text-transform:uppercase;letter-spacing:.5px;text-align:center;margin-bottom:6px">Comparison to the Team</div>
+          <div style="width:100%;flex:1;position:relative;min-height:260px"><canvas id="fb360RadarCanvas" style="position:absolute;inset:0;width:100%!important;height:100%!important"></canvas></div>
+        </div>
+
+        <!-- ② Overall Results compact card flex:2 ~20% -->
+        <div style="flex:2;border-right:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;align-items:center;padding:28px 22px;min-width:0;background:#fff;text-align:center">
+          <div style="font-size:9px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:12px">Overall Results</div>
+          <div style="display:flex;align-items:baseline;gap:3px;margin-bottom:8px">
+            <span style="font-size:56px;font-weight:800;color:#1A237E;letter-spacing:-3px;line-height:1" id="fb360Overall">${fmt(c.fb_overall,2)}</span>
+            <span style="font-size:15px;font-weight:500;color:#94A3B8">&nbsp;/ 5.00</span>
+          </div>
+          <div style="width:100%;height:6px;background:#E2E8F0;border-radius:4px;overflow:hidden;margin-bottom:16px">
+            <div id="fb360OverallBar" style="height:100%;width:${(c.fb_overall/5*100).toFixed(1)}%;background:#1565C0;border-radius:4px;transition:width .3s"></div>
+          </div>
+          <div style="width:100%;text-align:left;display:flex;flex-direction:column;gap:5px">
+            <div style="font-size:11px;color:#475569">Ranking: <b style="color:${rankColor360}">${rankLbl360}</b></div>
+          </div>
+        </div>
+
+        <!-- ③ Strength + Improved Point flex:3 ~35%, xếp dọc 2 nửa -->
+        <div style="flex:3;display:flex;flex-direction:column;min-width:0">
+          <div style="flex:1;padding:16px 18px;border-bottom:1px solid var(--border);overflow:auto">
+            <div style="display:inline-flex;align-items:center;gap:5px;background:#E8F5E9;border-radius:20px;padding:3px 12px;margin-bottom:10px">
+              <span style="font-size:9px;font-weight:800;color:#1B5E20;letter-spacing:.5px;text-transform:uppercase">Strength</span>
+            </div>
+            <ul style="margin:0;padding-left:15px;display:flex;flex-direction:column;gap:6px">
+              ${(D.strengths||'').split('\n').filter(l=>l.trim()).map(l=>`
+                <li style="font-size:11px;color:#334155;line-height:1.5">${l}</li>`).join('')}
+            </ul>
+          </div>
+          <div style="flex:1;padding:16px 18px;overflow:auto">
+            <div style="display:inline-flex;align-items:center;gap:5px;background:#FFF3E0;border-radius:20px;padding:3px 12px;margin-bottom:10px">
+              <span style="font-size:9px;font-weight:800;color:#E65100;letter-spacing:.5px;text-transform:uppercase">Improved Point</span>
+            </div>
+            <ul style="margin:0;padding-left:15px;display:flex;flex-direction:column;gap:6px">
+              ${(D.improvements||'').split('\n').filter(l=>l.trim()).map(l=>`
+                <li style="font-size:11px;color:#334155;line-height:1.5">${l}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+
+      </div>
+    </div>`;
+
+  const h=`<div class="card">
+    <div class="card-title" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px">
+        
+        360° Review – ${isStaff?'Staff':'Manager & Team Leader'} Framework
+        <span style="font-size:11px;font-weight:400;color:var(--muted)">· Scale 1–5 · ${dims.length} Dimensions</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span style="font-size:11px;color:var(--muted)">${isAdmin?'Showing real names':'Identities anonymous'}</span>
+        ${adminBtn}
+      </div>
+    </div>
+    <div class="card-body">
+      ${summaryPanel}
+      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;padding:5px 10px;background:#F8FAFC;border-radius:6px;border:1px solid var(--border)">
+        📏 Scale: <b>1</b> Poor · <b>2</b> Below Avg · <b>3</b> Average · <b>4</b> Good · <b>5</b> Outstanding
+        &nbsp;·&nbsp; <span style="color:${isAdmin?'var(--blue)':'var(--muted)'}">${isAdmin?'🔓 Admin: showing real evaluator names':'👤 User: evaluator identities are anonymous'}</span>
+      </div>
+      <div class="fb-input-grid">${personCards}</div>
+    </div>
+  </div>`;
+
+  ct.innerHTML=h;
+  updateLiveKPI();
+  setTimeout(()=>init360RadarChart(dims,c.fb_avg),60);
+}
+
+// ══ 360° RADAR CHART ══════════════════════════════════════
+function init360RadarChart(dims,fb_avg){
+  const ctx=$('fb360RadarCanvas');if(!ctx)return;
+  if(fb360Chart){fb360Chart.destroy();fb360Chart=null;}
+  fb360Chart=new Chart(ctx,{type:'radar',
+    data:{labels:dims.map(d=>d.name),datasets:[
+      {label:'Avg Score',data:[...fb_avg],borderColor:'#4A148C',backgroundColor:'rgba(74,20,140,.15)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#4A148C'},
+      {label:'Team Ref',data:[...FB.team],borderColor:'#1B5E20',backgroundColor:'rgba(27,94,32,.07)',borderWidth:1.5,pointRadius:3,pointBackgroundColor:'#1B5E20',borderDash:[4,3]},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:250},
+      plugins:{legend:{position:'top',labels:{boxWidth:10,padding:8,font:{size:10,family:'Be Vietnam Pro'}}}},
+      scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:8}},
+        pointLabels:{font:{size:9,family:'Be Vietnam Pro'}},
+        grid:{color:'#E8EAF6'},angleLines:{color:'#E8EAF6'}}}}
+  });
+}
+
+function update360Chart(){
+  const dims=getDims();
+  const fb_avg=dims.map((_,i)=>{
+    const vs=[FB.r1[i],FB.r2[i],FB.r3[i],FB.r4[i],FB.r5[i],FB.r6[i],FB.r7[i]].filter(v=>v>0);
+    return vs.length?vs.reduce((a,v)=>a+v,0)/vs.length:0;
+  });
+  const overall=fb_avg.reduce((a,v)=>a+v,0)/fb_avg.length;
+  dims.forEach((_,i)=>{
+    const a=$(`fb360avg${i}`); if(a)a.textContent=fmt(fb_avg[i],2);
+    const b=$(`fb360bar${i}`); if(b)b.style.width=(fb_avg[i]/5*100).toFixed(1)+'%';
+  });
+  const ov=$('fb360Overall'); if(ov)ov.textContent=fmt(overall,2);
+  const ob=$('fb360OverallBar'); if(ob)ob.style.width=(overall/5*100).toFixed(1)+'%';
+  if($('sk360Avg'))$('sk360Avg').textContent=fmt(overall,2);
+  if(fb360Chart){fb360Chart.data.datasets[0].data=[...fb_avg];fb360Chart.update('none');}
+}
+
+function updFB(rater,idx,val){
+  FB[rater][idx]=parseFloat(val)||0;
+  update360Chart();
+}
+
+// ══ MOBILE SIDEBAR (drawer) ═══════════════════════════════
+function toggleSidebar(){
+  $('sharedSidebar').classList.toggle('open');
+  $('sidebarOverlay').classList.toggle('open');
+}
+function closeSidebar(){
+  $('sharedSidebar').classList.remove('open');
+  $('sidebarOverlay').classList.remove('open');
+}
+
+// ══ MODE SWITCH ════════════════════════════════════════════
+function switchMode(mode){
+  currentMode=mode;
+  closeSidebar();
+  $('kpiPanel').classList.toggle('hidden', mode!=='kpi');
+  $('fb360EvalPanel').classList.toggle('hidden', mode!=='360eval');
+  $('fb360Panel').classList.toggle('hidden', mode!=='360');
+  $('reportPanel').classList.toggle('hidden', mode!=='report');
+  $('modeKpi').classList.toggle('active', mode==='kpi');
+  $('modeFb360Eval').classList.toggle('active', mode==='360eval');
+  $('modeFb').classList.toggle('active', mode==='360');
+  $('modeRpt').classList.toggle('active', mode==='report');
+  const rse=$('reportSidebarExtra');
+  if(rse) rse.style.display=mode==='report'?'flex':'none';
+  if(mode==='360eval'){renderFb360EvalSection();}
+  if(mode==='360'){renderFbSection();}
+  if(mode==='report'){renderReport();}
+}
+
+// ══ REPORT ════════════════════════════════════════════════
+let radarChart=null;
+function initRadarChart(){
+  const ctx=$('radarCanvas');if(!ctx)return;
+  if(radarChart){radarChart.destroy();radarChart=null;}
+  const c=calc(), dims=getDims();
+  radarChart=new Chart(ctx,{type:'radar',
+    data:{labels:dims.map(d=>d.name),datasets:[
+      {label:'Average of Team',data:[...FB.team],borderColor:'#00897B',backgroundColor:'rgba(0,137,123,.12)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#00897B'},
+      {label:'Your Result',data:[...c.fb_avg],borderColor:'#1A237E',backgroundColor:'rgba(26,35,126,.12)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#1A237E'},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+      plugins:{legend:{position:'top',labels:{boxWidth:12,padding:10,font:{size:11,family:'Be Vietnam Pro'},
+        generateLabels:chart=>chart.data.datasets.map((ds,i)=>({text:ds.label,fillStyle:ds.borderColor,strokeStyle:ds.borderColor,lineWidth:2,hidden:false,index:i}))
+      }}},
+      scales:{r:{min:0,max:5,ticks:{stepSize:1,font:{size:9},backdropColor:'transparent'},
+        pointLabels:{font:{size:10,family:'Be Vietnam Pro'}},
+        grid:{color:'#E2E8F0'},angleLines:{color:'#E2E8F0'}}}}
+  });
+}
+
+function renderReport(){
+  if(reportSubMode==='team'){renderTeamReport();return;}
+  const c=calc();
+  const dims=getDims();
+  // KPI Result: Manager=1st eval, Leader=2nd eval
+  const allK=[...SALES_KPIS,...getTasks(),...COMP_KPIS];
+  const mgrH1=allK.reduce((s,k)=>s+(evalScore(k.h1e1)||0)*k.weight/100,0);
+  const ldrH1=allK.reduce((s,k)=>s+(evalScore(k.h1e2)||0)*k.weight/100,0);
+  const mgrH2=allK.reduce((s,k)=>s+(evalScore(k.h2e1)||0)*k.weight/100,0);
+  const ldrH2=allK.reduce((s,k)=>s+(evalScore(k.h2e2)||0)*k.weight/100,0);
+  const kpiH1=(mgrH1+ldrH1)/2, kpiH2=(mgrH2+ldrH2)/2;
+  const kpiFinal=kpiH1*0.3+kpiH2*0.7;
+  const kpiFinalRank=getRank(kpiFinal);
+  const rankCol={S:'#6A1B9A',A:'#1B5E20',B:'#1565C0',C:'#C62828'}[kpiFinalRank]||'#1E3A8A';
+  const roleLbl={staff:'Staff',manager:'Manager',leader:'Leader / Team Leader'}[D.role]||D.role;
+  const pct5=(c.score5/5*100).toFixed(1);
+  const rankCls={S:'kc-purple',A:'kc-green',B:'kc-blue',C:'kc-red'}[c.ranking];
+  const rankLbl={S:'S – Outstanding',A:'A – Exceed Expectation',B:'B – Satisfactory',C:'C – Average'}[c.ranking];
+
+  const td=(v,cls='')=>`<td class="${cls}">${v}</td>`;
+  const tc=(v,cls='')=>`<td class="c ${cls}">${v}</td>`;
+  const tf=(v,d=2)=>`<td class="c">${fmt(v,d)}</td>`;
+
+  const kpiRows=kpis=>kpis.map(k=>{
+    const s=scoreKpi(k), rk=getRank(s.fin);
+    return `<tr>
+      ${td('<b>'+k.label+'</b><div style="font-size:10.5px;color:#94A3B8;margin-top:2px">'+k.std+'</div>')}
+      ${tc(k.weight+'%','b')}
+      ${tc(k.h1a||'—')}${tc(evalScore(k.h1e1))}${tc(evalScore(k.h1e2))}${tf(s.h1)}
+      ${tc(k.h2a||'—')}${tc(evalScore(k.h2e1))}${tc(evalScore(k.h2e2))}${tf(s.h2)}
+      ${tc(fmt(s.fin,2),'b hl')}
+      ${tc(rk,'rk-'+rk)}
+    </tr>`;
+  }).join('');
+
+  const fbRows=dims.map((d,i)=>`<tr>
+    <td>${d.name}</td>
+    ${tc(FB.r1[i])}${tc(FB.r2[i])}${tc(FB.r3[i])}${tc(FB.r4[i])}${tc(FB.r5[i])}${tc(FB.r6[i])}${tc(FB.r7[i])}
+    <td class="c b hl">${fmt(c.fb_avg[i],2)}</td>
+  </tr>`).join('');
+
+  if($('rptSubLbl'))$('rptSubLbl').textContent=`${D.name} · ${D.period}`;
+
+  const rankColor=c.ranking==='S'?'#6A1B9A':c.ranking==='A'?'#1B5E20':c.ranking==='B'?'#1565C0':'#C62828';
+  const strengthLines=(D.strengths||'').split('\n').filter(l=>l.trim());
+  const improvLines=(D.improvements||'').split('\n').filter(l=>l.trim());
+
+  $('reportContent').innerHTML=`
+
+    <!-- ══ PAGE 1: SUMMARY ══════════════════════════════════ -->
+    <div id="rpt-kpis" style="background:#fff;border-radius:12px;padding:28px 32px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-family:'Be Vietnam Pro',system-ui,sans-serif">
+
+      <!-- Title block -->
+      <div style="border-bottom:2.5px solid #E8EAF6;padding-bottom:16px;margin-bottom:18px">
+        <div style="font-size:13px;font-weight:600;color:#94A3B8;margin-bottom:4px">LOTTE Properties Hà Nội</div>
+        <div style="font-size:26px;font-weight:900;color:#0F172A;line-height:1.25;letter-spacing:-.3px">Performance Review ${D.period}</div>
+      </div>
+
+      <!-- Info row (dark grid) -->
+      <div class="rpt-info-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:2px;border-radius:10px;overflow:hidden;margin-bottom:20px">
+        ${[['FULL NAME',D.name],['DEPARTMENT',D.team],['POSITION',D.position],['GRADE',D.grade]].map(([lbl,val])=>
+          '<div style="background:#1E293B;color:#fff;padding:12px 16px"><div style="font-size:8.5px;font-weight:700;letter-spacing:1px;color:#64748B;margin-bottom:4px;text-transform:uppercase">'+lbl+'</div><div style="font-size:13px;font-weight:700;line-height:1.3">'+val+'</div></div>'
+        ).join('')}
+      </div>
+
+
+      <!-- Divider + KPI Result -->
+      <div style="border-top:1.5px solid #E8EAF6;padding-top:20px">
+        <div style="text-align:center;margin-bottom:16px">
+          <span style="font-size:11px;font-weight:800;color:#1E3A8A;text-transform:uppercase;letter-spacing:2px;border-bottom:2px solid #1E3A8A;padding-bottom:4px">KPI Result</span>
+        </div>
+        <div class="kpi-result-row" style="display:flex;gap:16px;align-items:stretch">
+          <div style="flex:1;border:1.5px solid #CBD5E1;border-radius:10px;overflow-x:auto;min-width:0">
+            <table style="width:100%;min-width:340px;border-collapse:collapse;font-size:12.5px">
+              <thead><tr>
+                <th style="background:#1E3A8A;color:#fff;padding:10px 16px;text-align:center;font-size:11px;font-weight:700;width:90px;border-right:1px solid rgba(255,255,255,.2)">Period</th>
+                <th style="background:#1E3A8A;color:#fff;padding:10px 16px;text-align:center;font-size:11px;font-weight:700;border-right:1px solid rgba(255,255,255,.2)">Team Manager<div style="font-size:9px;font-weight:500;opacity:.75;margin-top:2px">(1st Eval)</div></th>
+                <th style="background:#1E3A8A;color:#fff;padding:10px 16px;text-align:center;font-size:11px;font-weight:700">Team Leader<div style="font-size:9px;font-weight:500;opacity:.75;margin-top:2px">(2nd Eval)</div></th>
+              </tr></thead>
+              <tbody>
+                <tr style="border-bottom:1px solid #E2E8F0">
+                  <td style="padding:10px 16px;text-align:center;font-size:14px;font-weight:800;color:#E65100;background:#FFF8F5;border-right:1px solid #E2E8F0">H1<div style="font-size:9px;color:#94A3B8;font-weight:500;margin-top:2px">×30%</div></td>
+                  <td style="padding:10px 16px;text-align:center;border-right:1px solid #E2E8F0;background:#F8FAFF"><span style="font-size:20px;font-weight:800;color:#1E3A8A">${fmt(mgrH1,2)}</span><div style="font-size:9px;color:#64748B;margin-top:2px">/ 10.00</div></td>
+                  <td style="padding:10px 16px;text-align:center;background:#F8FAFF"><span style="font-size:20px;font-weight:800;color:#1E3A8A">${fmt(ldrH1,2)}</span><div style="font-size:9px;color:#64748B;margin-top:2px">/ 10.00</div></td>
+                </tr>
+                <tr>
+                  <td style="padding:10px 16px;text-align:center;font-size:14px;font-weight:800;color:#E65100;background:#FFF8F5;border-right:1px solid #E2E8F0">H2<div style="font-size:9px;color:#94A3B8;font-weight:500;margin-top:2px">×70%</div></td>
+                  <td style="padding:10px 16px;text-align:center;border-right:1px solid #E2E8F0;background:#F8FAFF"><span style="font-size:20px;font-weight:800;color:#1E3A8A">${fmt(mgrH2,2)}</span><div style="font-size:9px;color:#64748B;margin-top:2px">/ 10.00</div></td>
+                  <td style="padding:10px 16px;text-align:center;background:#F8FAFF"><span style="font-size:20px;font-weight:800;color:#1E3A8A">${fmt(ldrH2,2)}</span><div style="font-size:9px;color:#64748B;margin-top:2px">/ 10.00</div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;min-width:150px">
+            <div style="font-size:11px;font-weight:800;color:#1E3A8A;text-transform:uppercase;letter-spacing:1.5px;text-align:center">Final Grade</div>
+            <div style="flex:1;width:100%;border:2.5px solid ${rankCol};border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#FAFBFF;min-height:76px;gap:4px">
+              <div style="font-size:36px;font-weight:900;color:${rankCol};letter-spacing:2px;line-height:1">${kpiFinalRank}</div>
+              <div style="font-size:11px;font-weight:700;color:#64748B">${fmt(kpiFinal,2)} / 10.00</div>
+            </div>
+            <div style="font-size:9.5px;color:#94A3B8;text-align:center">H1×30% + H2×70%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+        <!-- ══ PAGE 2: KPI DETAIL ════════════════════════════════ -->
+    <div style="background:#fff;border-radius:12px;padding:24px 28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.07);font-family:'Be Vietnam Pro',system-ui,sans-serif">
+
+      <div style="font-size:13px;font-weight:800;color:#B91C1C;text-transform:uppercase;letter-spacing:.4px;padding-bottom:12px;border-bottom:2px solid #FEE2E2;margin-bottom:16px;display:flex;align-items:center;gap:10px">
+        <span>KPI Evaluation – Performance Results</span>
+        <span style="font-size:11px;font-weight:500;color:#94A3B8;text-transform:none">Sales 30% · Key Tasks 50% · Competency 20%</span>
+      </div>
+
+      <!-- Score summary chips -->
+      <div class="score-chips-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px">
+        ${[
+          ['Overall KPI',fmt(c.total,2)+' / 10.00',rankColor,rankLbl],
+          ['Sales (30%)',fmt(c.sc,3)+' pts','#C62828',''],
+          ['Key Tasks (50%)',fmt(c.tc,3)+' pts','#1565C0',''],
+          ['Competency (20%)',fmt(c.cc,3)+' pts','#1B5E20',''],
+        ].map(([l,v,col,sub])=>`<div style="background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;padding:12px 14px">
+          <div style="font-size:9px;color:#94A3B8;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px">${l}</div>
+          <div style="font-size:18px;font-weight:900;color:${col};letter-spacing:-.5px">${v}</div>
+          ${sub?`<div style="font-size:9.5px;color:${col};font-weight:600;margin-top:2px">${sub}</div>`:''}
+        </div>`).join('')}
+      </div>
+
+      <div id="rpt-s1" style="font-size:12px;font-weight:700;color:#1E293B;margin:16px 0 8px;padding:6px 12px;background:#FFF1F1;border-left:3px solid #C62828;border-radius:0 6px 6px 0">I. Sales Performance – Weight 30%</div>
+      <div style="overflow-x:auto"><table>
+        <thead>
+          <tr><th class="main-h left" rowspan="2">KPI Goal</th><th class="main-h" rowspan="2">Wt%</th>
+            <th colspan="4" class="h1h">H1 (Jan–Jun) · 30%</th>
+            <th colspan="4" class="h2h">H2 (Jul–Dec) · 70%</th>
+            <th class="yh" rowspan="2">Year</th><th class="yh" rowspan="2">Rank</th></tr>
+          <tr><th class="h1h">Actual</th><th class="h1h">1st</th><th class="h1h">2nd</th><th class="h1h">Avg</th>
+            <th class="h2h">Actual</th><th class="h2h">1st</th><th class="h2h">2nd</th><th class="h2h">Avg</th></tr>
+        </thead><tbody>${kpiRows(SALES_KPIS)}
+          <tr><td colspan="2" class="total b">Sales Total</td><td colspan="10" class="total">${fmt(c.sc,4)} pts</td></tr>
+        </tbody></table></div>
+
+      <div id="rpt-s2" style="font-size:12px;font-weight:700;color:#1E293B;margin:20px 0 8px;padding:6px 12px;background:#EFF6FF;border-left:3px solid #1565C0;border-radius:0 6px 6px 0">II. Key Tasks – Weight 50% · ${roleLbl}</div>
+      <div style="overflow-x:auto"><table>
+        <thead>
+          <tr><th class="main-h left" rowspan="2">KPI Goal</th><th class="main-h" rowspan="2">Wt%</th>
+            <th colspan="4" class="h1h">H1 (Jan–Jun) · 30%</th>
+            <th colspan="4" class="h2h">H2 (Jul–Dec) · 70%</th>
+            <th class="yh" rowspan="2">Year</th><th class="yh" rowspan="2">Rank</th></tr>
+          <tr><th class="h1h">Actual</th><th class="h1h">1st</th><th class="h1h">2nd</th><th class="h1h">Avg</th>
+            <th class="h2h">Actual</th><th class="h2h">1st</th><th class="h2h">2nd</th><th class="h2h">Avg</th></tr>
+        </thead><tbody>${kpiRows(getTasks())}
+          <tr><td colspan="2" class="total b">Key Tasks Total</td><td colspan="10" class="total">${fmt(c.tc,4)} pts</td></tr>
+        </tbody></table></div>
+
+      <div id="rpt-s3" style="font-size:12px;font-weight:700;color:#1E293B;margin:20px 0 8px;padding:6px 12px;background:#F0FDF4;border-left:3px solid #1B5E20;border-radius:0 6px 6px 0">III. General Competency – Weight 20%</div>
+      <div style="overflow-x:auto"><table>
+        <thead>
+          <tr><th class="main-h left" rowspan="2">Competency</th><th class="main-h" rowspan="2">Wt%</th>
+            <th colspan="4" class="h1h">H1 · 30%</th>
+            <th colspan="4" class="h2h">H2 · 70%</th>
+            <th class="yh" rowspan="2">Year</th><th class="yh" rowspan="2">Rank</th></tr>
+          <tr><th class="h1h">—</th><th class="h1h">1st</th><th class="h1h">2nd</th><th class="h1h">Avg</th>
+            <th class="h2h">—</th><th class="h2h">1st</th><th class="h2h">2nd</th><th class="h2h">Avg</th></tr>
+        </thead><tbody>${kpiRows(COMP_KPIS)}
+          <tr><td colspan="2" class="total b">Competency Total</td><td colspan="10" class="total">${fmt(c.cc,4)} pts</td></tr>
+        </tbody></table></div>
+    </div>`;
+}
+
+function scrollToId(id){const e=$(id);if(!e)return;const mc=document.querySelector('#reportPanel .main-content');if(mc)mc.scrollTop=e.offsetTop-20;}
+
+function switchReportMode(mode){
+  reportSubMode=mode;
+  const ti=$('rptTabIndv'),tt=$('rptTabTeam');
+  if(ti){ti.classList.toggle('active',mode==='individual');}
+  if(tt){tt.classList.toggle('active',mode==='team');}
+  const ni=$('rptNavIndv'),nt=$('rptNavTeam'),sd=$('rptSidebarDesc');
+  if(ni)ni.style.display=mode==='individual'?'':'none';
+  if(nt)nt.style.display=mode==='team'?'':'none';
+  if(sd)sd.innerHTML=mode==='individual'
+    ?`Individual Performance Evaluation<br><span id="rptSubLbl" style="font-size:10px;color:rgba(255,255,255,.28)">${D.name} · ${D.period}</span>`
+    :`Team Overview<br><span style="font-size:10px;color:rgba(255,255,255,.28)">KPI Rankings · ${new Date().getFullYear()}</span>`;
+  renderReport();
+}
+
+function renderTeamReport(){
+  const deptEl=$('teamDeptFilter');
+  const dept=deptEl?deptEl.value:'all';
+  const teams=[...new Set(EMPLOYEES.map(e=>e.team))].sort();
+  const rkColor={S:'#6A1B9A',A:'#1B5E20',B:'#1565C0',C:'#C62828'};
+  const rkBg={S:'#F3E5F5',A:'#E8F5E9',B:'#E3F2FD',C:'#FFEBEE'};
+  const rkLabel={S:'S – Outstanding',A:'A – Exceed Expectation',B:'B – Satisfactory',C:'C – Average'};
+
+  let emps=EMPLOYEES.map((e,i)=>({...e,idx:i,rank:getRank(e.kpi_demo||0)}));
+  if(dept!=='all') emps=emps.filter(e=>e.team===dept);
+  emps.sort((a,b)=>(b.kpi_demo||0)-(a.kpi_demo||0));
+
+  const allEmps=EMPLOYEES.map((e,i)=>({...e,idx:i,rank:getRank(e.kpi_demo||0)}));
+  const filtered=dept==='all'?allEmps:allEmps.filter(e=>e.team===dept);
+  const counts={S:0,A:0,B:0,C:0};
+  filtered.forEach(e=>counts[e.rank]++);
+
+  const deptFilterHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+    <span style="font-size:12px;font-weight:600;color:#475569">Department:</span>
+    <select id="teamDeptFilter" onchange="renderTeamReport()" style="padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:12px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;min-width:140px">
+      <option value="all"${dept==='all'?' selected':''}>All Departments</option>
+      ${teams.map(t=>`<option value="${t}"${dept===t?' selected':''}>${t}</option>`).join('')}
+    </select>
+    <span style="font-size:11px;color:#94A3B8">${filtered.length} employee${filtered.length!==1?'s':''}</span>
+  </div>`;
+
+  const summaryCards=['S','A','B','C'].map(r=>`
+    <div style="flex:1;background:${rkBg[r]};border-radius:12px;padding:16px 20px;text-align:center;border:1.5px solid ${rkColor[r]}22">
+      <div style="font-size:28px;font-weight:900;color:${rkColor[r]};line-height:1">${counts[r]}</div>
+      <div style="font-size:10px;font-weight:700;color:${rkColor[r]};text-transform:uppercase;letter-spacing:.5px;margin-top:4px">Rank ${r}</div>
+      <div style="font-size:10px;color:#64748B;margin-top:2px">${{S:'Outstanding',A:'Exceed Exp.',B:'Satisfactory',C:'Average'}[r]}</div>
+    </div>`).join('');
+
+  const hrOptions=['','Excellent','G1','G2','G3','NG'].map(v=>`<option value="${v}">${v||'-- Select --'}</option>`).join('');
+
+  const tableRows=emps.map((e,rowIdx)=>`
+    <tr style="${rowIdx%2===0?'background:#FAFBFC':''}">
+      <td style="padding:10px 14px;font-size:12.5px;font-weight:600;color:#1A237E">${e.name}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#475569">${e.team}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#475569">${e.position}</td>
+      <td style="padding:10px 14px;font-size:12px;color:#475569;text-align:center">${e.grade}</td>
+      <td style="padding:10px 14px;text-align:center">
+        <span style="font-size:14px;font-weight:800;color:#1A237E">${fmt(e.kpi_demo||0,2)}</span>
+        <span style="font-size:10px;color:#94A3B8"> /10</span>
+      </td>
+      <td style="padding:10px 14px;text-align:center">
+        <span style="display:inline-block;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:800;background:${rkBg[e.rank]};color:${rkColor[e.rank]}">${e.rank}</span>
+      </td>
+      <td style="padding:10px 14px;text-align:center;font-size:13px;font-weight:700;color:#4A148C">${fmt(e.fb_demo||0,2)}</td>
+      <td style="padding:10px 14px;text-align:center">
+        <select id="hrClass_${e.idx}" onchange="HR_CLASS[${e.idx}]=this.value"
+          style="padding:5px 8px;border:1.5px solid var(--border);border-radius:7px;font-size:11px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;min-width:110px">
+          ${hrOptions}
+        </select>
+      </td>
+    </tr>`).join('');
+
+  $('reportContent').innerHTML=`
+    <!-- Filter bar -->
+    <div style="background:#fff;border-radius:12px;padding:16px 20px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.07);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      ${deptFilterHTML}
+      <div style="font-size:11px;color:#94A3B8">Period: <b style="color:#475569">${EMPLOYEES[0].period||'2025'}</b></div>
+    </div>
+
+    <!-- KPI Summary cards -->
+    <div id="team-summary" style="background:#fff;border-radius:12px;padding:20px 24px;margin-bottom:16px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+      <div style="font-size:13px;font-weight:800;color:#1A237E;text-transform:uppercase;letter-spacing:.3px;padding-bottom:12px;border-bottom:2px solid #E8EAF6;margin-bottom:16px">
+        KPI Performance Distribution
+        <span style="font-size:11px;font-weight:500;color:#94A3B8;text-transform:none;margin-left:10px">All ${filtered.length} employee${filtered.length!==1?'s':''} · Sorted by KPI Score</span>
+      </div>
+      <div class="team-summary-row" style="display:flex;gap:12px">${summaryCards}</div>
+    </div>
+
+    <!-- Employee list table -->
+    <div id="team-list" style="background:#fff;border-radius:12px;padding:20px 24px;box-shadow:0 1px 6px rgba(0,0,0,.07)">
+      <div style="font-size:13px;font-weight:800;color:#1A237E;text-transform:uppercase;letter-spacing:.3px;padding-bottom:12px;border-bottom:2px solid #E8EAF6;margin-bottom:16px">
+        Employee KPI Rankings
+      </div>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse">
+          <thead>
+            <tr style="background:#F1F5F9">
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap">Full Name</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.4px">Department</th>
+              <th style="padding:10px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.4px">Position</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.4px">Grade</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#C62828;text-transform:uppercase;letter-spacing:.4px">KPI Score</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#C62828;text-transform:uppercase;letter-spacing:.4px">KPI Rank</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#4A148C;text-transform:uppercase;letter-spacing:.4px">360° Avg</th>
+              <th style="padding:10px 14px;text-align:center;font-size:11px;font-weight:700;color:#1B5E20;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap">HR Classification</th>
+            </tr>
+          </thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;font-size:10.5px;color:#94A3B8;font-style:italic">
+        * HR Classification is manually entered by HR department. Values: Excellent / G1 / G2 / G3 / NG
+      </div>
+    </div>`;
+
+  // Restore saved HR_CLASS values
+  emps.forEach(e=>{
+    const sel=$('hrClass_'+e.idx);
+    if(sel && HR_CLASS[e.idx]) sel.value=HR_CLASS[e.idx];
+  });
+}
+
+// ══ EMPLOYEE SELECTOR ═════════════════════════════════════
+function initEmpSelector(){
+  const el=$('hdrEmp'); if(!el) return;
+  el.innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+      <div style="font-size:9px;font-weight:700;letter-spacing:.6px;color:rgba(255,255,255,.45);text-transform:uppercase">Employee</div>
+      <div style="position:relative">
+        <select id="empSelect" onchange="loadEmployee(+this.value)"
+          style="appearance:none;-webkit-appearance:none;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);
+          border-radius:7px;color:#fff;font-family:inherit;font-size:12px;font-weight:600;
+          padding:5px 28px 5px 11px;cursor:pointer;outline:none;min-width:180px;text-align:right">
+          ${EMPLOYEES.map((e,i)=>`<option value="${i}" style="background:#1E2942;color:#fff">${e.name} · ${e.team}</option>`).join('')}
+        </select>
+        <span style="position:absolute;right:9px;top:50%;transform:translateY(-50%);font-size:10px;color:rgba(255,255,255,.6);pointer-events:none">▾</span>
+      </div>
+    </div>`;
+}
+
+function loadEmployee(idx){
+  const emp=EMPLOYEES[idx]; if(!emp) return;
+  Object.assign(D,emp);
+  KPIS_REF.tasks=getTasks();
+  renderKpiSection();
+  if($('fb360Container')&&$('fb360Panel')&&!$('fb360Panel').classList.contains('hidden'))renderFbSection();
+  if($('reportPanel')&&!$('reportPanel').classList.contains('hidden'))renderReport();
+  updateLiveKPI();
+  if($('empSelect'))$('empSelect').value=idx;
+}
+
+// ══ INIT ══════════════════════════════════════════════════
+KPIS_REF.tasks=getTasks();
+renderKpiSection();
+initEmpSelector();
+updateLiveKPI();
+</script>
+</body>
+</html>
