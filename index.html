@@ -1,9 +1,9 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LOTTE Mall West Lake – HR Performance System</title>
+<title>LOTTE – HR Performance System</title>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
@@ -379,6 +379,9 @@ html,body{height:100%;overflow:hidden;font-family:'Be Vietnam Pro',system-ui,san
   .dim-cards,.fb-input-grid{grid-template-columns:1fr!important}
   .fb-flow{flex-direction:column}
   .role-strip{flex-wrap:wrap}
+  .fb360-summary-row{flex-direction:column!important;min-height:0!important}
+  .fb360-summary-row>div{border-right:none!important;border-bottom:1px solid var(--border)}
+  .fb360-summary-row>div:last-child{border-bottom:none}
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -988,7 +991,8 @@ function renderFb360EvalSection(){
 
       <!-- Table -->
       <div style="border:1.5px solid #E2E8F0;border-radius:10px;overflow:hidden;margin-bottom:16px">
-        <table style="width:100%;border-collapse:collapse">
+        <div style="overflow-x:auto;-webkit-overflow-scrolling:touch">
+        <table style="width:100%;min-width:560px;border-collapse:collapse">
           <thead>
             <tr>
               <th style="background:#1E3A8A;color:#fff;padding:11px 16px;text-align:left;font-size:11px;font-weight:700">Dimension</th>
@@ -1006,6 +1010,7 @@ function renderFb360EvalSection(){
             </tr>
           </tbody>
         </table>
+        </div>
       </div>
 
       <!-- Actions -->
@@ -1113,7 +1118,7 @@ function renderFbSection(){
         <span style="width:26px;height:26px;border-radius:6px;background:var(--purple-bg);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:13px">📊</span>
         Score Summary
       </div>
-      <div style="display:flex;gap:0;align-items:stretch;min-height:320px">
+      <div class="fb360-summary-row" style="display:flex;gap:0;align-items:stretch;min-height:320px">
 
         <!-- ① Radar flex:5 ~45% -->
         <div style="flex:5;border-right:1px solid var(--border);padding:14px 20px;display:flex;flex-direction:column;align-items:center;min-width:0">
